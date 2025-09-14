@@ -35,9 +35,9 @@ h1 { text-align: center; font-size: 32px; margin: 0 0 20px; }
 
 .search-row { display: flex; gap: 12px; margin-bottom: 16px; }
 .input {
-  flex: 1;
-  padding: 12px;
-  border-radius: 12px;
+  flex: 1.8;
+  padding: 15px;
+  border-radius: 10px;
   border: none;
   background: rgba(255,255,255,0.1);
   color: white;
@@ -55,6 +55,7 @@ h1 { text-align: center; font-size: 32px; margin: 0 0 20px; }
 .btn-primary { background: linear-gradient(135deg, #6d8eff, #8a63ff); color: white; }
 .btn-surprise { background: linear-gradient(135deg, #ff896d, #ffcd4b); color: black; }
 .btn-clear { background: rgba(255,255,255,0.1); color: #ff8080; border: 1px solid rgba(255,255,255,0.2); }
+.btn-fav { background: rgba(255,255,255,0.1); color: #262C36; border: 1px solid rgba(255,255,255,0.2); }
 
 .muted { color: #b8b8b8; }
 .controls { display: flex; gap: 12px; margin-bottom: 16px; }
@@ -73,3 +74,4 @@ h1 { text-align: center; font-size: 32px; margin: 0 0 20px; }
   .app { flex-direction: column; }
   .sidebar { width: 100%; order: 2; }
 }
+
