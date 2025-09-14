@@ -4,52 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Random Episode Finder</title>
-  <style>
-    /* Minimal reset */
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#06060b;color:#e6e6f0}
-    a{color:inherit}
 
-    /* Layout */
-    .app{min-height:100vh;display:flex;gap:28px;padding:28px;align-items:flex-start;justify-content:center}
-    .sidebar{width:220px;background:linear-gradient(180deg,#0f0f17,#0b0b0f);border-radius:12px;padding:22px;color:#9a97a9}
-    .title{font-weight:700;color:#ffd24d;display:flex;gap:8px;align-items:center}
-    .main{max-width:920px;flex:1}
-
-    .card{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:28px;border-radius:16px;box-shadow:0 6px 24px rgba(0,0,0,0.6);}
-    h1{font-size:36px;margin:0 0 12px;text-align:center;color:#9aa0ff}
-
-    .search-row{display:flex;gap:12px;margin:18px 0}
-    .input{flex:1;padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);color:inherit}
-    .btn{padding:12px 18px;border-radius:10px;border:none;cursor:pointer;font-weight:700}
-    .btn-primary{background:linear-gradient(90deg,#5688ff,#b86cff);color:white}
-    .btn-surprise{background:linear-gradient(90deg,#ff7b5a,#ffb03d);color:#111}
-    .muted{color:#9a97a9}
-
-    .controls{display:flex;gap:12px;margin:12px 0;align-items:center}
-    select.input{max-width:100%;min-width:180px}
-
-    .result{margin-top:22px;display:flex;gap:14px;align-items:center}
-    .thumb{width:140px;height:100px;border-radius:10px;background:#222;flex-shrink:0;overflow:hidden}
-    .thumb img{width:100%;height:100%;object-fit:cover}
-    .meta{flex:1}
-    .meta h2{margin:0 0 6px}
-    .meta p{margin:2px 0;color:#bfbcd0}
-
-    .rating{font-weight:700;color:#ffd24d}
-    .fav{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px;border-radius:10px;cursor:pointer}
-
-    /* small */
-    @media (max-width:800px){
-      .app{padding:12px;flex-direction:column;padding-bottom:80px}
-      .sidebar{width:100%}
-      .main{width:100%}
-      .thumb{display:none}
-    }
-
-    /* tiny helper */
-    .hidden{display:none}
-  </style>
 </head>
 <body>
   <div class="app">
