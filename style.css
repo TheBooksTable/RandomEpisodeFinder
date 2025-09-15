@@ -7,12 +7,13 @@ html,body {
 }
 
 #siriWave {
-  display: block;
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+  z-index: -1; 
+  pointer-events: none; /* so it doesn't block clicks */
 }
 body {
   margin: 0;
@@ -241,6 +242,7 @@ h1 {
   to { transform: scale(1); opacity: 1; }
 }
 .card { animation: pop .12s ease both; }
+
 
 
 
