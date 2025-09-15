@@ -5,10 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Random Episode Finder</title>
 
-  <!-- Styles -->
   <link rel="stylesheet" href="style.css">
 
-  <!-- PWA -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0f0f0f">
 </head>
@@ -38,28 +36,21 @@
             </div>
           </div>
 
-          <!-- favorites toggle + install button -->
           <div style="display:flex;gap:8px;align-items:center">
-            <button id="favToggle" class="btn btn-clear" title="Show / hide favorites" style="display:none;">
-              Favorites
-            </button>
-            <button id="installBtn" class="btn btn-surprise" style="display:none;">
-              Install
-            </button>
+            <button id="favToggle" class="btn btn-clear" title="Show / hide favorites" style="display:none;">Favorites</button>
+            <button id="installBtn" class="btn btn-surprise" style="display:none;">Install</button>
           </div>
         </div>
 
         <h1>Random Episode Finder</h1>
 
         <!-- Search -->
-        <div class="search-row">
-          <input id="searchInput" class="input" placeholder="Search for a show (e.g. SpongeBob SquarePants)" aria-label="Search show" />
+        <div class="search-row" style="position:relative;">
+          <input id="searchInput" class="input" placeholder="Search for a show (e.g. SpongeBob SquarePants)" aria-label="Search for a show" />
           <button id="searchBtn" class="btn btn-primary">Search</button>
+          <div id="autocompleteList" class="autocomplete-list hidden" role="listbox"></div>
         </div>
 
-        <div id="inlineMessage" class="muted" style="margin-bottom:8px"></div>
-
-        <!-- Season Range -->
         <div class="hint" style="text-align:center;margin-bottom:8px">Season Range</div>
         <div class="controls">
           <div style="flex:1">
@@ -72,14 +63,15 @@
           </div>
         </div>
 
-        <!-- Actions -->
         <div style="display:flex;gap:12px;margin-top:12px;align-items:center;flex-wrap:wrap">
           <button id="findBtn" class="btn btn-primary">Find Random Episode</button>
           <button id="surpriseBtn" class="btn btn-surprise">✨ Surprise Me!</button>
           <button id="clearBtn" class="btn btn-clear" title="Clear favorites">Clear Favorites</button>
+          <div id="spinner" class="spinner hidden" aria-hidden="true"></div>
         </div>
 
-        <!-- Results -->
+        <div id="inlineMessage" class="inline-message hidden"></div>
+
         <div id="resultArea" class="result hidden" style="margin-top:18px"></div>
       </div>
 
@@ -87,10 +79,7 @@
     </main>
   </div>
 
-  <!-- Script -->
   <script src="script.js"></script>
-
-  <!-- Service Worker Registration -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
