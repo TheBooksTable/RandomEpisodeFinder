@@ -135,13 +135,13 @@ h1 {
   box-shadow: 0 0 5px #7B79FF, 0 0 10px #7B79FF, 0 0 20px #7B79FF;
   background: linear-gradient(135deg,#6d8eff 0%, #8a63ff 100%);
   color: white;
-  box-shadow: 0 6px 18px rgba(106,89,255,0.18);
+  /*box-shadow: 0 6px 18px rgba(106,89,255,0.18);*/
 }
 .btn-surprise {
   box-shadow: 0 0 5px #FF9567;, 0 0 10px #FF9567;, 0 0 20px #FF9567;;
   background: linear-gradient(135deg,#ff896d 0%, #ffcd4b 100%);
   color: #081122;
-  box-shadow: 0 6px 18px rgba(255,153,102,0.12);
+  /*box-shadow: 0 6px 18px rgba(255,153,102,0.12);*/
 }
 .btn-clear {
   box-shadow: 0 0 5px #0C949E, 0 0 10px #0C949E, 0 0 20px #0C949E;
@@ -230,6 +230,7 @@ h1 {
   to { transform: scale(1); opacity: 1; }
 }
 .card { animation: pop .12s ease both; }
+
 
 
 
