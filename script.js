@@ -7,7 +7,6 @@ function loadFavorites(){
   try { return JSON.parse(localStorage.getItem('ref-favs')||'[]'); } catch(e){ return []; }
 }
 function saveFavorites(list){ localStorage.setItem('ref-favs', JSON.stringify(list)); }
-
 function renderFavorites(){
   const list = loadFavorites();
   const ul = $('favoritesList');
@@ -15,29 +14,15 @@ function renderFavorites(){
   if(list.length===0){ ul.innerHTML = '<li class="muted">No favorites yet</li>'; return; }
   list.forEach(s => {
     const li = document.createElement('li');
-    // show only the name; clicking the name will search that show automatically
-    li.innerHTML = `<span class="favItem" data-id="${s.id}" data-name="${escapeHtml(s.name)}" style="cursor:pointer;">${escapeHtml(s.name)}</span> <button data-id="${s.id}" class="removeFav">✖</button>`;
+    li.innerHTML = `<span>${escapeHtml(s.name)}</span> <button data-id="${s.id}" class="removeFav">✖</button>`;
     ul.appendChild(li);
   });
-  // attach listeners AFTER building list
   document.querySelectorAll('.removeFav').forEach(b => b.addEventListener('click', e => {
     const id = Number(e.currentTarget.dataset.id);
     const newList = loadFavorites().filter(x => x.id !== id);
     saveFavorites(newList);
     renderFavorites();
   }));
-
-  // clicking the favorite name will trigger a search for that show
-  document.querySelectorAll('.favItem').forEach(span => {
-    span.addEventListener('click', async (e) => {
-      const name = e.currentTarget.dataset.name;
-      $('searchInput').value = name;
-      // trigger the search button programmatically (same as user clicking it)
-      $('searchBtn').click();
-      // For UX on mobile: scroll to top/main content
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  });
 }
 
 function escapeHtml(str){
@@ -142,5 +127,49 @@ $('searchInput').addEventListener('keydown', e => {
   if(e.key==='Enter') $('searchBtn').click();
 });
 
-// initialize favorites UI
 renderFavorites();
+
+// ✅ UI helpers: mobile favorites toggle + install button
+(function(){
+  const favToggle = document.getElementById('favToggle');
+  const installBtn = document.getElementById('installBtn');
+
+  function updateToggleVisibility(){
+    if(window.innerWidth <= 900){
+      if(favToggle) favToggle.style.display = 'inline-block';
+    } else {
+      if(favToggle) favToggle.style.display = 'none';
+    }
+  }
+  updateToggleVisibility();
+  window.addEventListener('resize', updateToggleVisibility);
+
+  if(favToggle){
+    favToggle.addEventListener('click', () => {
+      document.querySelector('.app').classList.toggle('favs-collapsed');
+      if(!document.querySelector('.app').classList.contains('favs-collapsed')){
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+  }
+
+  let deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if(installBtn) { installBtn.style.display = 'inline-block'; }
+  });
+
+  if(installBtn){
+    installBtn.addEventListener('click', async () => {
+      if(!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const choice = await deferredPrompt.userChoice;
+      if(choice.outcome === 'accepted') {
+        console.log('User accepted install');
+      }
+      deferredPrompt = null;
+      installBtn.style.display = 'none';
+    });
+  }
+})();
