@@ -1,32 +1,58 @@
 const $ = id => document.getElementById(id);
 let currentShow = null;
 let allEpisodes = [];
-const SURPRISE_LIST = ['Breaking Bad','The Office','Friends','SpongeBob SquarePants','Rick and Morty','Stranger Things','The Simpsons','Archer','Seinfeld','Avatar: The Last Airbender'];
+const SURPRISE_LIST = [
+  'Breaking Bad','The Office','Friends','SpongeBob SquarePants',
+  'Rick and Morty','Stranger Things','The Simpsons','Archer',
+  'Seinfeld','Avatar: The Last Airbender'
+];
 
 function loadFavorites(){
   try { return JSON.parse(localStorage.getItem('ref-favs')||'[]'); } catch(e){ return []; }
 }
 function saveFavorites(list){ localStorage.setItem('ref-favs', JSON.stringify(list)); }
+
 function renderFavorites(){
   const list = loadFavorites();
   const ul = $('favoritesList');
   ul.innerHTML = '';
-  if(list.length===0){ ul.innerHTML = '<li class="muted">No favorites yet</li>'; return; }
+  if(list.length===0){ 
+    ul.innerHTML = '<li class="muted">No favorites yet</li>'; 
+    return; 
+  }
   list.forEach(s => {
     const li = document.createElement('li');
-    li.innerHTML = `<span>${escapeHtml(s.name)}</span> <button data-id="${s.id}" class="removeFav">✖</button>`;
+    li.innerHTML = `
+      <span class="favItem" data-name="${escapeHtml(s.name)}">${escapeHtml(s.name)}</span>
+      <button data-id="${s.id}" class="removeFav">✖</button>
+    `;
     ul.appendChild(li);
   });
-  document.querySelectorAll('.removeFav').forEach(b => b.addEventListener('click', e => {
-    const id = Number(e.currentTarget.dataset.id);
-    const newList = loadFavorites().filter(x => x.id !== id);
-    saveFavorites(newList);
-    renderFavorites();
-  }));
+
+  // ✅ Clicking a favorite runs a search
+  document.querySelectorAll('.favItem').forEach(el => {
+    el.addEventListener('click', e => {
+      const name = e.currentTarget.dataset.name;
+      $('searchInput').value = name;
+      $('searchBtn').click();
+    });
+  });
+
+  // Remove favorite buttons
+  document.querySelectorAll('.removeFav').forEach(b => 
+    b.addEventListener('click', e => {
+      const id = Number(e.currentTarget.dataset.id);
+      const newList = loadFavorites().filter(x => x.id !== id);
+      saveFavorites(newList);
+      renderFavorites();
+    })
+  );
 }
 
 function escapeHtml(str){
-  return (''+str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  return (''+str).replace(/[&<>"']/g, m => (
+    {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]
+  ));
 }
 
 async function searchShow(query){
@@ -62,7 +88,8 @@ function pickRandom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 function renderResult(episode, show){
   const container = $('resultArea');
   container.classList.remove('hidden');
-  const img = episode.image ? episode.image.medium : (show.image ? show.image.medium : 'https://via.placeholder.com/300x200?text=No+Image');
+  const img = episode.image ? episode.image.medium : 
+             (show.image ? show.image.medium : 'https://via.placeholder.com/300x200?text=No+Image');
   container.innerHTML = `
     <div class="thumb"><img src="${img}" alt="thumb"/></div>
     <div class="meta">
@@ -87,7 +114,7 @@ function renderResult(episode, show){
   });
 }
 
-// Events
+// --- Events ---
 $('searchBtn').addEventListener('click', async () => {
   const q = $('searchInput').value.trim();
   if(!q){ alert('Type a show name'); return; }
