@@ -1,26 +1,26 @@
 /* ---------- base fixes ---------- */
 * { box-sizing: border-box; }
+.sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
 
-/* ensure body is scrollable and full viewport; typo fixed */
+/* ensure body is scrollable and full viewport */
 html, body {
   margin: 0;
   padding: 0;
-  height: auto;       /* let body grow with content */
-  min-height: 100vh;  /* at least the viewport height */
+  height: auto;
+  min-height: 100vh;
   background: #111;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Siri canvas: fixed full-viewport and won't block pointer events or scrolling */
 #siriWave {
-  position: fixed;        /* fixed ensures full viewport coverage even when page scrolls */
+  position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
   z-index: -1;
-  pointer-events: none;   /* IMPORTANT: allows scrolling & clicks through the canvas */
+  pointer-events: none;
 }
 
 /* keep the rest of your body styling (your original body block) */
@@ -124,43 +124,47 @@ h1 {
   border: none;
   cursor: pointer;
   transition: transform .12s ease, box-shadow .12s ease;
-  min-width: 48px;  
-  transition: transform 0.3s ease-in-out;
+  min-width: 48px;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+  transform: none;
+  box-shadow: none;
 }
 
 .btn-primary:hover{
   background-color: #7B79FF;
   color: #000;
   box-shadow: 0 0 10px #7B79FF, 0 0 20px #7B79FF, 0 0 40px #7B79FF;
-  text-shadow: none; 
-  transform: scale(1.05); 
+  text-shadow: none;
+  transform: scale(1.05);
 }
 .btn-surprise:hover{
   background-color: #FF9567;
   color: #000;
   box-shadow: 0 0 10px #FF9567, 0 0 20px #FF9567, 0 0 40px #FF9567;
-  text-shadow: none; 
-  transform: scale(1.05); 
+  text-shadow: none;
+  transform: scale(1.05);
 }
 .btn-clear:hover{
   background-color: #03e9f4;
   color: #000;
   box-shadow: 0 0 10px #0C949E, 0 0 20px #0C949E, 0 0 40px #0C949E;
-  text-shadow: none; 
-  transform: scale(1.05); 
+  text-shadow: none;
+  transform: scale(1.05);
 }
 .btn:active { transform: translateY(1px); }
 .btn-primary {
   box-shadow: 0 0 5px #7B79FF, 0 0 10px #7B79FF, 0 0 20px #7B79FF;
   background: linear-gradient(135deg,#6d8eff 0%, #8a63ff 100%);
   color: white;
-  /*box-shadow: 0 6px 18px rgba(106,89,255,0.18);*/
 }
 .btn-surprise {
   box-shadow: 0 0 5px #FF9567 0 0 10px #FF9567, 0 0 20px #FF9567;
   background: linear-gradient(135deg,#ff896d 0%, #ffcd4b 100%);
   color: #081122;
-  /*box-shadow: 0 6px 18px rgba(255,153,102,0.12);*/
 }
 .btn-clear {
   box-shadow: 0 0 5px #0C949E, 0 0 10px #0C949E, 0 0 20px #0C949E;
@@ -205,16 +209,7 @@ h1 {
   transition: transform .15s ease, background .15s ease, box-shadow .15s ease;
   user-select: none;
 }
-.favItem:hover {
-  transform: translateY(-2px);
-  background: linear-gradient(180deg, rgba(109,142,255,0.25), rgba(138,99,255,0.15));
-  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-}
-.favItem:active {
-  transform: translateY(1px);
-  background: linear-gradient(180deg, rgba(109,142,255,0.35), rgba(138,99,255,0.25));
-}
-
+.favItem:hover { transform: translateY(-2px); }
 .removeFav {
   background: rgba(255,255,255,0.02);
   border-radius: 8px;
@@ -223,6 +218,28 @@ h1 {
   border: none;
   color: #ffdddd;
 }
+
+/* episodes list */
+.episodesList { margin-top: 12px; }
+
+/* message box */
+.message {
+  margin: 8px 0 12px 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.02);
+  color: #ffd;
+  font-weight: 600;
+}
+
+/* spinner */
+.spinner {
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.spinner-svg { width: 28px; height: 28px; animation: spin 1s linear infinite; stroke: #fff; opacity: 0.85; }
+@keyframes spin { from { transform: rotate(0deg);} to { transform: rotate(360deg);} }
 
 /* small screens */
 @media (max-width: 900px) {
@@ -249,13 +266,3 @@ h1 {
   to { transform: scale(1); opacity: 1; }
 }
 .card { animation: pop .12s ease both; }
-
-
-
-
-
-
-
-
-
-
