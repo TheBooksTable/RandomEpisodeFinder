@@ -5,52 +5,98 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Random Episode Finder</title>
 
+  <!-- Styles -->
   <link rel="stylesheet" href="style.css">
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0f0f0f">
 </head>
 <body>
-  <!-- Waves canvas (inserted in DOM here so it's before app visually but appears behind via CSS) -->
-  <canvas id="wave-canvas" aria-hidden="true"></canvas>
+  <canvas id="siriWave"></canvas>
 
-  <div class="app" role="application" aria-labelledby="app-title">
-    <header class="top">
-      <div class="brand" id="app-title">Random Episode Finder</div>
-      <div class="controls-top">
-        <button id="random-button" class="btn btn-surprise" aria-label="Surprise me (R)">✨ Surprise</button>
-      </div>
-    </header>
+  <div class="app">
+    <!-- Sidebar / Favorites -->
+    <aside class="sidebar card glass">
+      <div class="title">★ Favorites</div>
+      <p class="muted" style="margin-top:12px">
+        Your favorite shows will appear here. Click the heart on a result to save it.
+      </p>
+      <ul id="favoritesList"></ul>
+    </aside>
 
-    <main class="main" role="main">
-      <section class="search-card card" aria-labelledby="search-label">
-        <label id="search-label" class="sr-only" for="search-input">Search for a show</label>
-        <div class="search-row">
-          <input id="search-input" class="input" placeholder="Search for a show (e.g. SpongeBob SquarePants)" aria-label="Search for a show"/>
-          <button id="search-button" class="btn btn-primary" aria-label="Search">Search</button>
-        </div>
-
-        <!-- inline message & spinner -->
-        <div class="status-row">
-          <div id="spinner" class="spinner" aria-hidden="true" hidden>
-            <svg viewBox="0 0 50 50" class="spinner-svg" aria-hidden="true">
-              <circle cx="25" cy="25" r="20" fill="none" stroke-width="4"/>
-            </svg>
-            <span class="spinner-text">Loading…</span>
+    <!-- Main Content -->
+    <main class="main">
+      <div class="card glass">
+        <!-- Topbar -->
+        <div class="topbar">
+          <div style="display:flex;gap:12px;align-items:center">
+            <div class="logo">RE</div>
+            <div>
+              <div style="font-weight:800;font-size:14px">Random Episode Finder</div>
+              <div class="hint" style="margin-top:2px;font-size:12px">Let Fate Decide What you Watch</div>
+            </div>
           </div>
 
-          <div id="error-message" class="message" role="status" aria-live="polite" hidden></div>
+          <!-- favorites toggle + install button -->
+          <div style="display:flex;gap:8px;align-items:center">
+            <button id="favToggle" class="btn btn-clear" title="Show / hide favorites" style="display:none;">
+              Favorites
+            </button>
+            <button id="installBtn" class="btn btn-surprise" style="display:none;">
+              Install
+            </button>
+          </div>
         </div>
-      </section>
 
-      <section id="results" class="results" aria-live="polite" tabindex="-1">
-        <!-- results will be injected here -->
-      </section>
+        <h1>Random Episode Finder</h1>
+
+        <!-- Search -->
+        <div class="search-row">
+          <input id="searchInput" class="input" placeholder="Search for a show (e.g. SpongeBob SquarePants)" />
+          <button id="searchBtn" class="btn btn-primary">Search</button>
+        </div>
+
+        <!-- Season Range -->
+        <div class="hint" style="text-align:center;margin-bottom:8px">Season Range</div>
+        <div class="controls">
+          <div style="flex:1">
+            <label>From Season</label>
+            <select id="fromSeason" class="input"></select>
+          </div>
+          <div style="flex:1">
+            <label>To Season</label>
+            <select id="toSeason" class="input"></select>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div style="display:flex;gap:12px;margin-top:12px;align-items:center;flex-wrap:wrap">
+          <button id="findBtn" class="btn btn-primary">Find Random Episode</button>
+          <button id="surpriseBtn" class="btn btn-surprise">✨ Surprise Me!</button>
+          <button id="clearBtn" class="btn btn-clear" title="Clear favorites">Clear Favorites</button>
+        </div>
+
+        <!-- Results -->
+        <div id="resultArea" class="result hidden" style="margin-top:18px"></div>
+      </div>
+
+      <div id="episodesList"></div>
     </main>
-
-    <footer class="footer card">
-      <div class="muted">Keyboard: <strong>S</strong> focus search • <strong>R</strong> surprise</div>
-    </footer>
   </div>
 
+  <!-- Script -->
   <script src="script.js"></script>
+
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(reg => console.log('Service Worker registered', reg))
+          .catch(err => console.error('SW registration failed', err));
+      });
+    }
+  </script>
 </body>
 </html>
