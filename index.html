@@ -4,23 +4,31 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Random Episode Finder</title>
+
+  <!-- Styles -->
   <link rel="stylesheet" href="style.css">
-  <canvas id="siriWave"></canvas>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0f0f0f">
 </head>
 <body>
   <canvas id="siriWave"></canvas>
+
   <div class="app">
     <!-- Sidebar / Favorites -->
     <aside class="sidebar card glass">
       <div class="title">★ Favorites</div>
-      <p class="muted" style="margin-top:12px">Your favorite shows will appear here. Click the heart on a result to save it.</p>
+      <p class="muted" style="margin-top:12px">
+        Your favorite shows will appear here. Click the heart on a result to save it.
+      </p>
       <ul id="favoritesList"></ul>
     </aside>
 
     <!-- Main Content -->
     <main class="main">
       <div class="card glass">
-        <!--  New topbar -->
+        <!-- Topbar -->
         <div class="topbar">
           <div style="display:flex;gap:12px;align-items:center">
             <div class="logo">RE</div>
@@ -30,10 +38,14 @@
             </div>
           </div>
 
-          <!-- favorites toggle (mobile) + install button -->
+          <!-- favorites toggle + install button -->
           <div style="display:flex;gap:8px;align-items:center">
-            <button id="favToggle" class="btn btn-clear" title="Show / hide favorites" style="display:none;">Favorites</button>
-            <button id="installBtn" class="btn btn-surprise" style="display:none;">Install</button>
+            <button id="favToggle" class="btn btn-clear" title="Show / hide favorites" style="display:none;">
+              Favorites
+            </button>
+            <button id="installBtn" class="btn btn-surprise" style="display:none;">
+              Install
+            </button>
           </div>
         </div>
 
@@ -73,6 +85,18 @@
     </main>
   </div>
 
+  <!-- Script -->
   <script src="script.js"></script>
+
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(reg => console.log('Service Worker registered', reg))
+          .catch(err => console.error('SW registration failed', err));
+      });
+    }
+  </script>
 </body>
 </html>
