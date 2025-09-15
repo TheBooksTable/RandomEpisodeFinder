@@ -13,11 +13,11 @@
   <meta name="theme-color" content="#0f0f0f">
 </head>
 <body>
-  <canvas id="siriWave"></canvas>
+  <canvas id="siriWave" aria-hidden="true"></canvas>
 
-  <div class="app">
+  <div class="app" role="main">
     <!-- Sidebar / Favorites -->
-    <aside class="sidebar card glass">
+    <aside class="sidebar card glass" role="complementary" aria-label="Favorites">
       <div class="title">★ Favorites</div>
       <p class="muted" style="margin-top:12px">
         Your favorite shows will appear here. Click the heart on a result to save it.
@@ -34,11 +34,10 @@
             <div class="logo">RE</div>
             <div>
               <div style="font-weight:800;font-size:14px">Random Episode Finder</div>
-              <div class="hint" style="margin-top:2px;font-size:12px">Let Fate Decide What you Watch</div>
+              <div class="hint" style="margin-top:2px;font-size:12px">Let Fate Decide What You Watch</div>
             </div>
           </div>
 
-          <!-- favorites toggle + install button -->
           <div style="display:flex;gap:8px;align-items:center">
             <button id="favToggle" class="btn btn-clear" title="Show / hide favorites" style="display:none;">
               Favorites
@@ -53,19 +52,25 @@
 
         <!-- Search -->
         <div class="search-row">
-          <input id="searchInput" class="input" placeholder="Search for a show (e.g. SpongeBob SquarePants)" />
-          <button id="searchBtn" class="btn btn-primary">Search</button>
+          <input id="searchInput" class="input" placeholder="Search for a show (e.g. SpongeBob SquarePants)" aria-label="Search for a show" />
+          <button id="searchBtn" class="btn btn-primary" aria-label="Search">Search</button>
         </div>
+
+        <!-- Inline messages -->
+        <div id="message" class="hint" style="text-align:center;margin-bottom:8px"></div>
+
+        <!-- Spinner -->
+        <div id="spinner" class="spinner hidden" aria-hidden="true"></div>
 
         <!-- Season Range -->
         <div class="hint" style="text-align:center;margin-bottom:8px">Season Range</div>
         <div class="controls">
           <div style="flex:1">
-            <label>From Season</label>
+            <label for="fromSeason">From Season</label>
             <select id="fromSeason" class="input"></select>
           </div>
           <div style="flex:1">
-            <label>To Season</label>
+            <label for="toSeason">To Season</label>
             <select id="toSeason" class="input"></select>
           </div>
         </div>
@@ -78,7 +83,7 @@
         </div>
 
         <!-- Results -->
-        <div id="resultArea" class="result hidden" style="margin-top:18px"></div>
+        <div id="resultArea" class="result hidden" role="region" aria-live="polite" style="margin-top:18px"></div>
       </div>
 
       <div id="episodesList"></div>
@@ -87,16 +92,5 @@
 
   <!-- Script -->
   <script src="script.js"></script>
-
-  <!-- Service Worker Registration -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js')
-          .then(reg => console.log('Service Worker registered', reg))
-          .catch(err => console.error('SW registration failed', err));
-      });
-    }
-  </script>
 </body>
 </html>
