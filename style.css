@@ -147,17 +147,29 @@ h1 {
 /* favorites list */
 #favoritesList { padding: 0; margin: 6px 0 0 0; }
 #favoritesList li { list-style:none; margin-bottom: 10px; display:flex; justify-content:space-between; align-items:center; gap:8px; }
+
+/* ✅ Clickable favorites */
 .favItem {
-  display:inline-block;
-  padding: 8px 12px;
+  display: inline-block;
+  padding: 8px 14px;
   border-radius: 999px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
   cursor: pointer;
-  font-weight:600;
+  font-weight: 600;
   color: #e6f0ff;
-  transition: transform .12s ease, background .12s ease;
+  transition: transform .15s ease, background .15s ease, box-shadow .15s ease;
+  user-select: none;
 }
-.favItem:hover { transform: translateY(-3px); background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)); }
+.favItem:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(180deg, rgba(109,142,255,0.25), rgba(138,99,255,0.15));
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+.favItem:active {
+  transform: translateY(1px);
+  background: linear-gradient(180deg, rgba(109,142,255,0.35), rgba(138,99,255,0.25));
+}
+
 .removeFav {
   background: rgba(255,255,255,0.02);
   border-radius: 8px;
