@@ -4,20 +4,35 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Random Episode Finder</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0f0f0f"/>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="app">
-    <aside class="sidebar card">
+    <aside class="sidebar card glass">
       <div class="title">★ Favorites</div>
-      <p class="muted" style="margin-top:18px">Your favorite shows will appear here. Tap a name to jump straight to that show.</p>
-      <ul id="favoritesList" style="list-style:none;padding:0;margin-top:18px"></ul>
+      <p class="muted" style="margin-top:12px">Your favorite shows will appear here. Click the heart on a result to save it.</p>
+      <ul id="favoritesList"></ul>
     </aside>
 
     <main class="main">
-      <div class="card">
+      <div class="card glass">
+        <!-- ✅ New topbar -->
+        <div class="topbar">
+          <div style="display:flex;gap:12px;align-items:center">
+            <div class="logo">RE</div>
+            <div>
+              <div style="font-weight:800;font-size:14px">Random Episode Finder</div>
+              <div class="hint" style="margin-top:2px;font-size:12px">Discover a random episode to watch</div>
+            </div>
+          </div>
+
+          <!-- favorites toggle (mobile) + install button -->
+          <div style="display:flex;gap:8px;align-items:center">
+            <button id="favToggle" class="btn btn-clear" title="Show / hide favorites" style="display:none;">Favorites</button>
+            <button id="installBtn" class="btn btn-surprise" style="display:none;">Install</button>
+          </div>
+        </div>
+
         <h1>Random Episode Finder</h1>
 
         <div class="search-row">
@@ -25,43 +40,31 @@
           <button id="searchBtn" class="btn btn-primary">Search</button>
         </div>
 
-        <div style="text-align:center" class="muted">Season Range</div>
+        <div class="hint" style="text-align:center;margin-bottom:8px">Season Range</div>
         <div class="controls">
           <div style="flex:1">
-            <label class="muted" style="font-size:13px">From Season</label>
+            <label>From Season</label>
             <select id="fromSeason" class="input"></select>
           </div>
           <div style="flex:1">
-            <label class="muted" style="font-size:13px">To Season</label>
+            <label>To Season</label>
             <select id="toSeason" class="input"></select>
           </div>
         </div>
 
-        <div style="display:flex;gap:12px;margin-top:12px;align-items:center">
+        <div style="display:flex;gap:12px;margin-top:12px;align-items:center;flex-wrap:wrap">
           <button id="findBtn" class="btn btn-primary">Find Random Episode</button>
           <button id="surpriseBtn" class="btn btn-surprise">✨ Surprise Me!</button>
           <button id="clearBtn" class="btn btn-clear" title="Clear favorites">Clear Favorites</button>
         </div>
 
-        <div id="resultArea" class="result hidden card" style="margin-top:18px"></div>
+        <div id="resultArea" class="result hidden" style="margin-top:18px"></div>
       </div>
 
       <div id="episodesList"></div>
-      
     </main>
   </div>
 
-  <!-- register service worker for PWA support -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/service-worker.js').catch(function(err){
-          console.warn('ServiceWorker registration failed:', err);
-        });
-      });
-    }
-  </script>
-
- <script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
