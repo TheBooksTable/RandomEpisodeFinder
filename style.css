@@ -106,8 +106,8 @@ h1 {
   cursor: pointer;
   transition: transform .12s ease, box-shadow .12s ease;
   min-width: 48px;
-  box-shadow: 0 0 10px #03e9f4, 0 0 20px #03e9f4, 0 0 40px #03e9f4;
-  text-shadow: 0 0 7px #fff, 0 0 10px #03e9f4; /* Optional text glow */
+  box-shadow: 0 0 5px #03e9f4, 0 0 10px #03e9f4, 0 0 20px #03e9f4;
+  
   
   transition: transform 0.3s ease-in-out;
 }
@@ -216,5 +216,6 @@ h1 {
   to { transform: scale(1); opacity: 1; }
 }
 .card { animation: pop .12s ease both; }
+
 
 
