@@ -1,61 +1,4 @@
 const $ = id => document.getElementById(id);
-const canvas = document.getElementById('siriWave');
-const ctx = canvas.getContext('2d');
-
-let width = canvas.width = window.innerWidth;
-let height = canvas.height = window.innerHeight;
-
-// Mouse position
-let mouse = { x: width/2, y: height/2 };
-
-const waves = [
-  { amplitude: 25, wavelength: 300, speed: 0.02, phase: 0, color: 'rgba(0,150,255,0.6)' },
-  { amplitude: 20, wavelength: 200, speed: 0.018, phase: 0, color: 'rgba(255,0,255,0.5)' },
-  { amplitude: 15, wavelength: 150, speed: 0.025, phase: 0, color: 'rgba(0,255,255,0.4)' },
-];
-
-// Listen to mouse movement
-window.addEventListener('mousemove', e => {
-  mouse.x = e.clientX;
-  mouse.y = e.clientY;
-});
-
-function drawWave(wave) {
-  ctx.beginPath();
-  for (let x = 0; x < width; x++) {
-    // Base wave
-    let y = height / 2 + wave.amplitude * Math.sin((x / wave.wavelength) * 2 * Math.PI + wave.phase);
-
-    // Disturbance effect near the mouse
-    let dx = x - mouse.x;
-    let distance = Math.abs(dx);
-    let influence = Math.exp(-distance / 150); // falloff with distance
-    y -= influence * (mouse.y - height/2) * 0.3; // shift wave toward mouse
-
-    ctx.lineTo(x, y);
-  }
-  ctx.strokeStyle = wave.color;
-  ctx.lineWidth = 2;
-  ctx.stroke();
-}
-
-function draw() {
-  ctx.clearRect(0, 0, width, height);
-
-  waves.forEach(wave => {
-    drawWave(wave);
-    wave.phase += wave.speed;
-  });
-
-  requestAnimationFrame(draw);
-}
-
-draw();
-
-window.addEventListener('resize', () => {
-  width = canvas.width = window.innerWidth;
-  height = canvas.height = window.innerHeight;
-});
 let currentShow = null;
 let allEpisodes = [];
 const SURPRISE_LIST = [
@@ -270,6 +213,7 @@ renderFavorites();
     });
   }
 })();
+
 
 
 
