@@ -5,19 +5,19 @@ let allEpisodes = [];
 const SURPRISE_LIST = [
   'Breaking Bad','The Office','Friends','SpongeBob SquarePants',
   'Rick and Morty','Stranger Things','The Simpsons','Archer',
-  'Seinfeld','Avatar: The Last Airbender','Smiling Friends', 
-  'BoJack Horseman','Black Mirror','Brooklyn Nine-Nine', 
-  'Supernatural','South Park','Twin Peaks','Fargo', 
-  'Better Call Saul','Infinity Train', 
-  'Kipo and the Age of Wonderbeasts','Tuca & Bertie', 
-  'Final Space','The Midnight Gospel','Undone', 
-  'Close Enough','Hilda','F Is for Family', 
-  'Solar Opposites','Golan the Insatiable', 
-  'Adventure Time: Distant Lands','Over the Garden Wall', 
-  'Primal','Magical Girl Raising Project','Welcome to the Ballroom', 
-  'Aggretsuko','Bee and PuppyCat','King Star King', 
-  'The Shivering Truth','12 oz. Mouse','The Brak Show', 
-  'Drawn Together','Superjail!'
+  'Seinfeld','Avatar: The Last Airbender', 'Smiling Friends', 
+  'BoJack Horseman', 'Black Mirror', 'Brooklyn Nine-Nine', 
+  'Supernatural', 'South Park', 'Twin Peaks','Fargo', 
+  'Better Call Saul','Smiling Friends', 'Infinity Train', 
+  'Kipo and the Age of Wonderbeasts', 'Tuca & Bertie', 
+  'Final Space', 'The Midnight Gospel', 'Undone', 
+  'Close Enough', 'Hilda', 'F Is for Family', 
+  'Solar Opposites', 'Golan the Insatiable', 
+  'Adventure Time: Distant Lands', 'Over the Garden Wall', 
+  'Primal', 'Magical Girl Raising Project', 'Welcome to the Ballroom', 
+  'Aggretsuko', 'Bee and PuppyCat', 'King Star King', 
+  'The Shivering Truth', '12 oz. Mouse', 'The Brak Show', 
+  'Drawn Together', 'Superjail!'
 ];
 
 // --- Favorites ---
@@ -218,12 +218,17 @@ function draw() {
   requestAnimationFrame(draw);
 }
 
-// Keep canvas full-screen
+// Keep canvas full-screen and follow scroll
 function updateCanvasSize() {
   width = canvas.width = window.innerWidth;
-  height = canvas.height = window.innerHeight;
+  height = canvas.height = Math.max(window.innerHeight, document.body.scrollHeight);
 }
 window.addEventListener('resize', updateCanvasSize);
+window.addEventListener('scroll', () => {
+  canvas.style.top = window.scrollY + 'px';
+});
 
 updateCanvasSize();
 draw();
+});
+
