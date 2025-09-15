@@ -41,7 +41,7 @@ function renderFavorites(){
     ul.appendChild(li);
   });
 
-  // ✅ Clicking a favorite runs a search
+  // Clicking a favorite runs a search
   document.querySelectorAll('.favItem').forEach(el => {
     el.addEventListener('click', e => {
       const name = e.currentTarget.dataset.name;
@@ -168,7 +168,7 @@ $('searchInput').addEventListener('keydown', e => {
 
 renderFavorites();
 
-// ✅ UI helpers: mobile favorites toggle + install button
+// UI helpers: mobile favorites toggle + install button
 (function(){
   const favToggle = document.getElementById('favToggle');
   const installBtn = document.getElementById('installBtn');
@@ -212,4 +212,5 @@ renderFavorites();
     });
   }
 })();
+
 
