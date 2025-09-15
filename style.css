@@ -1,8 +1,19 @@
-
-
-
 * { box-sizing: border-box; }
-html,body { height: 100%; }
+html,body { 
+  height: 100%;  
+  margin: 0;
+  padding: 0;
+  overflow: hidden; 
+}
+
+#waveCanvas {
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial;
@@ -230,6 +241,7 @@ h1 {
   to { transform: scale(1); opacity: 1; }
 }
 .card { animation: pop .12s ease both; }
+
 
 
 
