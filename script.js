@@ -1,4 +1,3 @@
-// --- Helper ---
 const $ = id => document.getElementById(id);
 let currentShow = null;
 let allEpisodes = [];
@@ -20,8 +19,9 @@ const SURPRISE_LIST = [
   'Drawn Together', 'Superjail!'
 ];
 
-// --- Favorites ---
-function loadFavorites(){ try { return JSON.parse(localStorage.getItem('ref-favs')||'[]'); } catch(e){ return []; } }
+function loadFavorites(){
+  try { return JSON.parse(localStorage.getItem('ref-favs')||'[]'); } catch(e){ return []; }
+}
 function saveFavorites(list){ localStorage.setItem('ref-favs', JSON.stringify(list)); }
 
 function renderFavorites(){
@@ -41,27 +41,32 @@ function renderFavorites(){
     ul.appendChild(li);
   });
 
+  // Clicking a favorite runs a search
   document.querySelectorAll('.favItem').forEach(el => {
     el.addEventListener('click', e => {
-      $('searchInput').value = e.currentTarget.dataset.name;
+      const name = e.currentTarget.dataset.name;
+      $('searchInput').value = name;
       $('searchBtn').click();
     });
   });
 
+  // Remove favorite buttons
   document.querySelectorAll('.removeFav').forEach(b => 
     b.addEventListener('click', e => {
       const id = Number(e.currentTarget.dataset.id);
-      saveFavorites(loadFavorites().filter(x => x.id !== id));
+      const newList = loadFavorites().filter(x => x.id !== id);
+      saveFavorites(newList);
       renderFavorites();
     })
   );
 }
 
 function escapeHtml(str){
-  return (''+str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  return (''+str).replace(/[&<>"']/g, m => (
+    {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]
+  ));
 }
 
-// --- API ---
 async function searchShow(query){
   const res = await fetch(`https://api.tvmaze.com/search/shows?q=${encodeURIComponent(query)}`);
   if(!res.ok) throw new Error('Search failed');
@@ -76,159 +81,242 @@ async function getEpisodesForShow(showId){
 function populateSeasonSelectors(episodes){
   const seasons = [...new Set(episodes.map(e=>e.season))].sort((a,b)=>a-b);
   const from = $('fromSeason'); const to = $('toSeason');
-  from.innerHTML=''; to.innerHTML='';
+  from.innerHTML = ''; to.innerHTML = '';
   seasons.forEach(s => {
-    const opt = document.createElement('option'); opt.value=s; opt.textContent=`Season ${s}`;
-    from.appendChild(opt); to.appendChild(opt.cloneNode(true));
+    const opt = document.createElement('option');
+    opt.value = s; opt.textContent = `Season ${s}`;
+    from.appendChild(opt);
+    to.appendChild(opt.cloneNode(true));
   });
-  from.value = seasons[0]; to.value = seasons[seasons.length-1];
+  from.value = seasons[0];
+  to.value = seasons[seasons.length-1];
 }
 
+// Remove all HTML comments (including edge cases) from str.
 function removeHtmlComments(str){
   let prev;
-  do { prev=str; str=str.replace(/<!--|--!?>/g,""); } while(str!==prev);
+  do {
+    prev = str;
+    str = str.replace(/<!--|--!?>/g, "");
+  } while (str !== prev);
   return str;
 }
-function simpleSanitizeHtml(str){
-  const div=document.createElement('div'); div.innerHTML=str;
+
+// Strips all HTML tags using safe DOM APIs.
+function simpleSanitizeHtml(str) {
+  const div = document.createElement('div');
+  div.innerHTML = str;
   return div.textContent || div.innerText || "";
 }
-function filterEpisodesBySeasonRange(eps,fromS,toS){ return eps.filter(e=>e.season>=fromS && e.season<=toS); }
+
+function filterEpisodesBySeasonRange(eps, fromS, toS){
+  return eps.filter(e => e.season >= fromS && e.season <= toS);
+}
 function pickRandom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 
 function renderResult(episode, show){
-  const container = $('resultArea'); container.classList.remove('hidden');
-  const img = episode.image ? episode.image.medium : (show.image ? show.image.medium : 'https://via.placeholder.com/300x200?text=No+Image');
+  const container = $('resultArea');
+  container.classList.remove('hidden');
+  const img = episode.image ? episode.image.medium : 
+             (show.image ? show.image.medium : 'https://via.placeholder.com/300x200?text=No+Image');
   container.innerHTML = `
     <div class="thumb"><img src="${img}" alt="thumb"/></div>
     <div class="meta">
       <div class="muted">${escapeHtml(show.name)} — S${episode.season}E${episode.number}</div>
       <h2>${escapeHtml(episode.name)}</h2>
       <p class="muted">Aired: ${episode.airdate || 'Unknown'}</p>
-      <p>${episode.summary ? removeHtmlComments(simpleSanitizeHtml(episode.summary)) : 'No summary available.'}</p>
+       <p>${episode.summary ? removeHtmlComments(simpleSanitizeHtml(episode.summary)) : 'No summary available.'}</p>
+      
       <button id="saveFav" class="btn btn-clear">♡ Save Show</button>
     </div>
     <div class="rating">${episode.rating?.average || ''}</div>
   `;
-  $('saveFav').addEventListener('click', ()=>{
+  // Removed: str.replace(/<!--|--!?>/g, "");  
+  $('saveFav').addEventListener('click', () => {
     const favs = loadFavorites();
-    if(!favs.find(f=>f.id===show.id)){ favs.push({id: show.id,name: show.name}); saveFavorites(favs); renderFavorites(); alert('Saved to favorites!'); }
-    else alert('Already in favorites');
+    if(!favs.find(f=>f.id===show.id)){
+      favs.push({id: show.id, name: show.name});
+      saveFavorites(favs);
+      renderFavorites();
+      alert('Saved to favorites!');
+    } else {
+      alert('Already in favorites');
+    }
   });
 }
 
 // --- Events ---
-$('searchBtn').addEventListener('click', async ()=>{
-  const q = $('searchInput').value.trim(); if(!q){ alert('Type a show name'); return; }
+$('searchBtn').addEventListener('click', async () => {
+  const q = $('searchInput').value.trim();
+  if(!q){ alert('Type a show name'); return; }
   try {
-    const data = await searchShow(q); if(data.length===0){ alert('No shows found'); return; }
-    currentShow = data[0].show; allEpisodes = await getEpisodesForShow(currentShow.id);
-    populateSeasonSelectors(allEpisodes); renderResult(pickRandom(allEpisodes), currentShow);
-  } catch(err){ console.error(err); alert('Error: '+err.message); }
+    const data = await searchShow(q);
+    if(data.length===0){ alert('No shows found'); return; }
+    currentShow = data[0].show;
+    allEpisodes = await getEpisodesForShow(currentShow.id);
+    populateSeasonSelectors(allEpisodes);
+    renderResult(pickRandom(allEpisodes), currentShow);
+  } catch(err) { console.error(err); alert('Error: '+err.message); }
 });
 
-$('findBtn').addEventListener('click', ()=>{
+$('findBtn').addEventListener('click', () => {
   if(!currentShow || allEpisodes.length===0){ alert('Search a show first'); return; }
-  const fromS=Number($('fromSeason').value), toS=Number($('toSeason').value);
-  const filtered=filterEpisodesBySeasonRange(allEpisodes,fromS,toS);
+  const fromS = Number($('fromSeason').value);
+  const toS = Number($('toSeason').value);
+  const filtered = filterEpisodesBySeasonRange(allEpisodes, fromS, toS);
   if(filtered.length===0){ alert('No episodes in that range'); return; }
   renderResult(pickRandom(filtered), currentShow);
 });
 
-$('surpriseBtn').addEventListener('click', ()=>{
-  $('searchInput').value=pickRandom(SURPRISE_LIST); $('searchBtn').click();
+$('surpriseBtn').addEventListener('click', () => {
+  const showName = pickRandom(SURPRISE_LIST);
+  $('searchInput').value = showName;
+  $('searchBtn').click();
 });
 
-$('clearBtn').addEventListener('click', ()=>{
-  if(confirm('Clear all favorites?')){ localStorage.removeItem('ref-favs'); renderFavorites(); }
+$('clearBtn').addEventListener('click', () => {
+  if(confirm('Clear all favorites?')){
+    localStorage.removeItem('ref-favs');
+    renderFavorites();
+  }
 });
 
-$('searchInput').addEventListener('keydown', e=>{ if(e.key==='Enter') $('searchBtn').click(); });
+$('searchInput').addEventListener('keydown', e => {
+  if(e.key==='Enter') $('searchBtn').click();
+});
+
 renderFavorites();
 
-// --- PWA Install ---
-const installBtn = $('installBtn');
-let deferredPrompt = null;
+// UI helpers: mobile favorites toggle + install button
+(function(){
+  const favToggle = document.getElementById('favToggle');
+  const installBtn = document.getElementById('installBtn');
 
-window.addEventListener('beforeinstallprompt', e=>{
-  e.preventDefault();
-  deferredPrompt = e;
-  if(installBtn) installBtn.style.display='inline-block';
-});
+  function updateToggleVisibility(){
+    if(window.innerWidth <= 900){
+      if(favToggle) favToggle.style.display = 'inline-block';
+    } else {
+      if(favToggle) favToggle.style.display = 'none';
+    }
+  }
+  updateToggleVisibility();
+  window.addEventListener('resize', updateToggleVisibility);
 
-if(installBtn){
-  installBtn.addEventListener('click', async ()=>{
-    if(!deferredPrompt) return;
-    deferredPrompt.prompt();
-    const choice = await deferredPrompt.userChoice;
-    if(choice.outcome==='accepted') console.log('User accepted install');
-    deferredPrompt=null; installBtn.style.display='none';
+  if(favToggle){
+    favToggle.addEventListener('click', () => {
+      document.querySelector('.app').classList.toggle('favs-collapsed');
+      if(!document.querySelector('.app').classList.contains('favs-collapsed')){
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+  }
+
+  let deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if(installBtn) { installBtn.style.display = 'inline-block'; }
   });
-}
 
-// --- Mobile Favorites Toggle ---
-const favToggle = $('favToggle');
-function updateToggleVisibility(){
-  if(window.innerWidth<=900){ if(favToggle) favToggle.style.display='inline-block'; }
-  else { if(favToggle) favToggle.style.display='none'; }
-}
-updateToggleVisibility(); window.addEventListener('resize', updateToggleVisibility);
-
-if(favToggle){
-  favToggle.addEventListener('click', ()=>{
-    document.querySelector('.app').classList.toggle('favs-collapsed');
-    if(!document.querySelector('.app').classList.contains('favs-collapsed')) window.scrollTo({top:0,behavior:'smooth'});
-  });
-}
-
-// --- Siri-style Waves ---
-const canvas = document.getElementById('siriWave');
+  if(installBtn){
+    installBtn.addEventListener('click', async () => {
+      if(!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const choice = await deferredPrompt.userChoice;
+      if(choice.outcome === 'accepted') {
+        console.log('User accepted install');
+      }
+      deferredPrompt = null;
+      installBtn.style.display = 'none';
+    });
+  }
+  const canvas = document.getElementById('siriWave');
 const ctx = canvas.getContext('2d');
 
 let width = canvas.width = window.innerWidth;
 let height = canvas.height = window.innerHeight;
 
-const waves = [];
-const waveCount = 3;
-const amplitude = 20;
-const frequency = 0.02;
-const speed = 0.02;
+// Pointer tracking
+let pointer = { x: width/2, y: height/2 };
+let targetPointer = { x: width/2, y: height/2 };
 
-// Initialize wave phases
-for (let i = 0; i < waveCount; i++) {
-  waves.push({ phase: 0, color: `rgba(0,255,255,${0.3 + i * 0.2})` });
+function updatePointer(x, y){
+  targetPointer.x = x;
+  targetPointer.y = y;
 }
+window.addEventListener('mousemove', e => updatePointer(e.clientX, e.clientY));
+window.addEventListener('touchmove', e => updatePointer(e.touches[0].clientX, e.touches[0].clientY));
 
-function draw() {
-  ctx.clearRect(0, 0, width, height);
-
-  waves.forEach(wave => {
+// Multi-layer waves for depth
+  const waves = [
+    { baseAmplitude: 25, wavelength: 300, speed: 0.02, phase: 0 },
+    { baseAmplitude: 20, wavelength: 250, speed: 0.018, phase: 0 },
+    { baseAmplitude: 15, wavelength: 200, speed: 0.025, phase: 0 }
+  ];
+  
+  function lerp(a, b, t){ return a + (b - a) * t; }
+  
+  function createGradient() {
+    const gradient = ctx.createLinearGradient(0, 0, width, height);
+    gradient.addColorStop(0, 'rgba(0,150,255,0.6)');
+    gradient.addColorStop(0.3, 'rgba(255,0,255,0.5)');
+    gradient.addColorStop(0.7, 'rgba(0,255,255,0.4)');
+    gradient.addColorStop(1, 'rgba(255,255,255,0.3)');
+    return gradient;
+  }
+  
+  function drawWave(wave){
     ctx.beginPath();
-    for (let x = 0; x < width; x++) {
-      const y = height/2 + Math.sin(x * frequency + wave.phase) * amplitude;
+    for(let x=0; x<width; x++){
+      // Breathing effect
+      const amplitude = wave.baseAmplitude + Math.sin(Date.now()*0.002 + x*0.01) * 5;
+  
+      // Horizontal ripple from pointer
+      const dx = x - pointer.x;
+      const distanceFactor = Math.exp(-Math.abs(dx)/150);
+  
+      // Vertical position + ripple
+      const y = pointer.y 
+                + amplitude * Math.sin((x / wave.wavelength) * 2 * Math.PI + wave.phase)
+                - distanceFactor * (pointer.y - height/2) * 0.3;
+  
       ctx.lineTo(x, y);
     }
-    ctx.strokeStyle = wave.color;
+    ctx.strokeStyle = createGradient();
     ctx.lineWidth = 2;
     ctx.stroke();
-
-    wave.phase += speed;
+  }
+  
+  let animationFrame;
+  function draw(){
+    ctx.clearRect(0, 0, width, height);
+  
+    // Smooth pointer follow
+    pointer.x = lerp(pointer.x, targetPointer.x, 0.05);
+    pointer.y = lerp(pointer.y, targetPointer.y, 0.05);
+  
+    // Draw each wave layer
+    waves.forEach(wave => {
+      drawWave(wave);
+      wave.phase += wave.speed;
+    });
+  
+    animationFrame = requestAnimationFrame(draw);
+  }
+  
+  draw();
+  
+  // Handle resizing
+  window.addEventListener('resize', () => {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+    pointer.x = targetPointer.x = width/2;
+    pointer.y = targetPointer.y = height/2;
   });
-
-  requestAnimationFrame(draw);
-}
-
-// Keep canvas full-screen and follow scroll
-function updateCanvasSize() {
-  width = canvas.width = window.innerWidth;
-  height = canvas.height = Math.max(window.innerHeight, document.body.scrollHeight);
-}
-window.addEventListener('resize', updateCanvasSize);
-window.addEventListener('scroll', () => {
-  canvas.style.top = window.scrollY + 'px';
-});
-
-updateCanvasSize();
-draw();
-});
-
+  
+  // Pause animation on hidden tabs
+  document.addEventListener('visibilitychange', () => {
+    if(document.hidden) cancelAnimationFrame(animationFrame);
+    else draw();
+  });
+})();
