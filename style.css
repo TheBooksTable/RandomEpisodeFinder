@@ -105,32 +105,46 @@ h1 {
   border: none;
   cursor: pointer;
   transition: transform .12s ease, box-shadow .12s ease;
-  min-width: 48px;
-  box-shadow: 0 0 5px #03e9f4, 0 0 10px #03e9f4, 0 0 20px #03e9f4;
-  
-  
+  min-width: 48px;  
   transition: transform 0.3s ease-in-out;
 }
 
-.btn:hover{
+.btn-primary:hover{
+  background-color: #7B79FF;
+  color: #000;
+  box-shadow: 0 0 10px #7B79FF, 0 0 20px #7B79FF, 0 0 40px #7B79FF;
+  text-shadow: none; 
+  transform: scale(1.05); 
+}
+.btn-surprise:hover{
+  background-color: #FF9567;
+  color: #000;
+  box-shadow: 0 0 10px #FF9567, 0 0 20px #FF9567, 0 0 40px #FF9567;
+  text-shadow: none; 
+  transform: scale(1.05); 
+}
+.btn-clear:hover{
   background-color: #03e9f4;
   color: #000;
-  box-shadow: 0 0 20px #03e9f4, 0 0 50px #03e9f4, 0 0 80px #03e9f4;
+  box-shadow: 0 0 10px #0C949E, 0 0 20px #0C949E, 0 0 40px #0C949E;
   text-shadow: none; 
   transform: scale(1.05); 
 }
 .btn:active { transform: translateY(1px); }
 .btn-primary {
+  box-shadow: 0 0 5px #7B79FF, 0 0 10px #7B79FF, 0 0 20px #7B79FF;
   background: linear-gradient(135deg,#6d8eff 0%, #8a63ff 100%);
   color: white;
   box-shadow: 0 6px 18px rgba(106,89,255,0.18);
 }
 .btn-surprise {
+  box-shadow: 0 0 5px #FF9567;, 0 0 10px #FF9567;, 0 0 20px #FF9567;;
   background: linear-gradient(135deg,#ff896d 0%, #ffcd4b 100%);
   color: #081122;
   box-shadow: 0 6px 18px rgba(255,153,102,0.12);
 }
 .btn-clear {
+  box-shadow: 0 0 5px #0C949E, 0 0 10px #0C949E, 0 0 20px #0C949E;
   background: rgba(255,255,255,0.04);
   color: #9cc6ff;
   border: 1px solid rgba(255,255,255,0.04);
@@ -216,6 +230,7 @@ h1 {
   to { transform: scale(1); opacity: 1; }
 }
 .card { animation: pop .12s ease both; }
+
 
 
 
