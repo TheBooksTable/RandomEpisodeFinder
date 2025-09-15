@@ -4,14 +4,15 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Random Episode Finder</title>
-<link rel="stylesheet" href="style.css">
-
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0f0f0f"/>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="app">
     <aside class="sidebar card">
       <div class="title">★ Favorites</div>
-      <p class="muted" style="margin-top:18px">Your favorite shows will appear here. Click the heart on a result to save it.</p>
+      <p class="muted" style="margin-top:18px">Your favorite shows will appear here. Tap a name to jump straight to that show.</p>
       <ul id="favoritesList" style="list-style:none;padding:0;margin-top:18px"></ul>
     </aside>
 
@@ -49,6 +50,17 @@
       
     </main>
   </div>
+
+  <!-- register service worker for PWA support -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/service-worker.js').catch(function(err){
+          console.warn('ServiceWorker registration failed:', err);
+        });
+      });
+    }
+  </script>
 
  <script src="script.js"></script>
 </body>
