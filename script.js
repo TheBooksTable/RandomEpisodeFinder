@@ -69,6 +69,12 @@ function escapeHtml(str){
   ));
 }
 
+// --- SIMPLE SANITIZER FIX ---
+function simpleSanitizeHtml(str){
+  // Remove all HTML tags (basic, safe for summaries)
+  return (''+str).replace(/<[^>]*>?/gm, '');
+}
+
 // --- FETCH HELPERS ---
 async function searchShow(query){
   const res = await fetch(`https://api.tvmaze.com/search/shows?q=${encodeURIComponent(query)}`);
@@ -202,46 +208,48 @@ document.addEventListener('DOMContentLoaded', () => {
 // Siri-style glowing waves
 // ----------------------------
 const waveCanvas = $('siriWave');
-const waveCtx = waveCanvas.getContext('2d');
-let width = waveCanvas.width = window.innerWidth;
-let height = waveCanvas.height = window.innerHeight;
+if(waveCanvas){
+  const waveCtx = waveCanvas.getContext('2d');
+  let width = waveCanvas.width = window.innerWidth;
+  let height = waveCanvas.height = window.innerHeight;
 
-window.addEventListener('resize', () => {
-  width = waveCanvas.width = window.innerWidth;
-  height = waveCanvas.height = window.innerHeight;
-});
+  window.addEventListener('resize', () => {
+    width = waveCanvas.width = window.innerWidth;
+    height = waveCanvas.height = window.innerHeight;
+  });
 
-class SiriWave {
-  constructor(color, baseAmp, speed, wavelength, phase){
-    this.color=color; this.baseAmp=baseAmp; this.amp=baseAmp;
-    this.speed=speed; this.wavelength=wavelength; this.phase=phase; this.offset=0;
-  }
-  draw(){
-    waveCtx.beginPath();
-    for(let x=0;x<=width;x++){
-      const y = height/2 + Math.sin((x*this.wavelength)+this.offset+this.phase)*
-                this.amp*(0.5+Math.random()*0.5);
-      waveCtx.lineTo(x,y);
+  class SiriWave {
+    constructor(color, baseAmp, speed, wavelength, phase){
+      this.color=color; this.baseAmp=baseAmp; this.amp=baseAmp;
+      this.speed=speed; this.wavelength=wavelength; this.phase=phase; this.offset=0;
     }
-    waveCtx.strokeStyle=this.color;
-    waveCtx.lineWidth=2;
-    waveCtx.shadowBlur = 12;
-    waveCtx.shadowColor = this.color;
-    waveCtx.stroke();
-    this.amp=this.baseAmp + Math.sin(this.offset*0.3)*5 + (Math.random()*2-1)*3;
-    this.offset += this.speed;
+    draw(){
+      waveCtx.beginPath();
+      for(let x=0;x<=width;x++){
+        const y = height/2 + Math.sin((x*this.wavelength)+this.offset+this.phase)*
+                  this.amp*(0.5+Math.random()*0.5);
+        waveCtx.lineTo(x,y);
+      }
+      waveCtx.strokeStyle=this.color;
+      waveCtx.lineWidth=2;
+      waveCtx.shadowBlur = 12;
+      waveCtx.shadowColor = this.color;
+      waveCtx.stroke();
+      this.amp=this.baseAmp + Math.sin(this.offset*0.3)*5 + (Math.random()*2-1)*3;
+      this.offset += this.speed;
+    }
   }
+
+  const waves = [
+    new SiriWave('rgba(109,142,255,0.3)', 25, 0.02, 0.02, 0),
+    new SiriWave('rgba(255,109,142,0.2)', 15, 0.015, 0.018, Math.PI/3),
+    new SiriWave('rgba(255,255,255,0.15)', 35, 0.01, 0.025, Math.PI/2),
+    new SiriWave('rgba(138,99,255,0.1)', 20, 0.018, 0.03, Math.PI/4)
+  ];
+
+  (function animateWaves(){
+    waveCtx.clearRect(0,0,width,height);
+    waves.forEach(w=>w.draw());
+    requestAnimationFrame(animateWaves);
+  })();
 }
-
-const waves = [
-  new SiriWave('rgba(109,142,255,0.3)', 25, 0.02, 0.02, 0),
-  new SiriWave('rgba(255,109,142,0.2)', 15, 0.015, 0.018, Math.PI/3),
-  new SiriWave('rgba(255,255,255,0.15)', 35, 0.01, 0.025, Math.PI/2),
-  new SiriWave('rgba(138,99,255,0.1)', 20, 0.018, 0.03, Math.PI/4)
-];
-
-(function animateWaves(){
-  waveCtx.clearRect(0,0,width,height);
-  waves.forEach(w=>w.draw());
-  requestAnimationFrame(animateWaves);
-})();
