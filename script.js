@@ -102,6 +102,13 @@ function removeHtmlComments(str){
   return str;
 }
 
+// Strips all HTML tags using safe DOM APIs.
+function simpleSanitizeHtml(str) {
+  const div = document.createElement('div');
+  div.innerHTML = str;
+  return div.textContent || div.innerText || "";
+}
+
 function filterEpisodesBySeasonRange(eps, fromS, toS){
   return eps.filter(e => e.season >= fromS && e.season <= toS);
 }
@@ -118,7 +125,7 @@ function renderResult(episode, show){
       <div class="muted">${escapeHtml(show.name)} — S${episode.season}E${episode.number}</div>
       <h2>${escapeHtml(episode.name)}</h2>
       <p class="muted">Aired: ${episode.airdate || 'Unknown'}</p>
-       <p>${episode.summary ? removeHtmlComments(episode.summary.replace(/<[^>]+>/g,'')) : 'No summary available.'}</p>
+       <p>${episode.summary ? removeHtmlComments(simpleSanitizeHtml(episode.summary)) : 'No summary available.'}</p>
       
       <button id="saveFav" class="btn btn-clear">♡ Save Show</button>
     </div>
