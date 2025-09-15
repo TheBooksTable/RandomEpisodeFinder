@@ -15,9 +15,9 @@
 <body>
   <canvas id="siriWave"></canvas>
 
-  <div class="app">
+  <div class="app" role="main">
     <!-- Sidebar / Favorites -->
-    <aside class="sidebar card glass">
+    <aside class="sidebar card glass" aria-label="Favorites">
       <div class="title">★ Favorites</div>
       <p class="muted" style="margin-top:12px">
         Your favorite shows will appear here. Click the heart on a result to save it.
@@ -53,13 +53,9 @@
 
         <!-- Search -->
         <div class="search-row">
-          <input id="searchInput" class="input" placeholder="Search for a show (e.g. SpongeBob SquarePants)" aria-label="Search show"/>
-          <button id="searchBtn" class="btn btn-primary">Search</button>
-          <div id="loadingSpinner" class="spinner hidden" aria-live="polite"></div>
+          <input id="searchInput" class="input" placeholder="Search for a show (e.g. SpongeBob SquarePants)" aria-label="Search for a show"/>
+          <button id="searchBtn" class="btn btn-primary" aria-label="Search for show">Search</button>
         </div>
-
-        <!-- Inline error -->
-        <div id="errorMsg" class="hint" style="color:#ff6b6b;margin-bottom:8px;"></div>
 
         <!-- Season Range -->
         <div class="hint" style="text-align:center;margin-bottom:8px">Season Range</div>
@@ -82,7 +78,9 @@
         </div>
 
         <!-- Results -->
-        <div id="resultArea" class="result hidden" style="margin-top:18px"></div>
+        <div id="errorMsg" class="hint" style="color:#ff6b6b;margin-top:12px;display:none;"></div>
+        <div id="loadingSpinner" class="spinner hidden" aria-hidden="true"></div>
+        <div id="resultArea" class="result hidden" style="margin-top:18px" tabindex="0"></div>
       </div>
 
       <div id="episodesList"></div>
