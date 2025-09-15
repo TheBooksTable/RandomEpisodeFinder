@@ -230,5 +230,6 @@ window.addEventListener('scroll', () => {
 
 updateCanvasSize();
 draw();
-});
+})();
+
 
