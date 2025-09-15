@@ -212,10 +212,93 @@ renderFavorites();
       installBtn.style.display = 'none';
     });
   }
+  const canvas = document.getElementById('siriWave');
+const ctx = canvas.getContext('2d');
+
+let width = canvas.width = window.innerWidth;
+let height = canvas.height = window.innerHeight;
+
+// Pointer tracking
+let pointer = { x: width/2, y: height/2 };
+let targetPointer = { x: width/2, y: height/2 };
+
+function updatePointer(x, y){
+  targetPointer.x = x;
+  targetPointer.y = y;
+}
+window.addEventListener('mousemove', e => updatePointer(e.clientX, e.clientY));
+window.addEventListener('touchmove', e => updatePointer(e.touches[0].clientX, e.touches[0].clientY));
+
+// Multi-layer waves for depth
+  const waves = [
+    { baseAmplitude: 25, wavelength: 300, speed: 0.02, phase: 0 },
+    { baseAmplitude: 20, wavelength: 250, speed: 0.018, phase: 0 },
+    { baseAmplitude: 15, wavelength: 200, speed: 0.025, phase: 0 }
+  ];
+  
+  function lerp(a, b, t){ return a + (b - a) * t; }
+  
+  function createGradient() {
+    const gradient = ctx.createLinearGradient(0, 0, width, height);
+    gradient.addColorStop(0, 'rgba(0,150,255,0.6)');
+    gradient.addColorStop(0.3, 'rgba(255,0,255,0.5)');
+    gradient.addColorStop(0.7, 'rgba(0,255,255,0.4)');
+    gradient.addColorStop(1, 'rgba(255,255,255,0.3)');
+    return gradient;
+  }
+  
+  function drawWave(wave){
+    ctx.beginPath();
+    for(let x=0; x<width; x++){
+      // Breathing effect
+      const amplitude = wave.baseAmplitude + Math.sin(Date.now()*0.002 + x*0.01) * 5;
+  
+      // Horizontal ripple from pointer
+      const dx = x - pointer.x;
+      const distanceFactor = Math.exp(-Math.abs(dx)/150);
+  
+      // Vertical position + ripple
+      const y = pointer.y 
+                + amplitude * Math.sin((x / wave.wavelength) * 2 * Math.PI + wave.phase)
+                - distanceFactor * (pointer.y - height/2) * 0.3;
+  
+      ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = createGradient();
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+  
+  let animationFrame;
+  function draw(){
+    ctx.clearRect(0, 0, width, height);
+  
+    // Smooth pointer follow
+    pointer.x = lerp(pointer.x, targetPointer.x, 0.05);
+    pointer.y = lerp(pointer.y, targetPointer.y, 0.05);
+  
+    // Draw each wave layer
+    waves.forEach(wave => {
+      drawWave(wave);
+      wave.phase += wave.speed;
+    });
+  
+    animationFrame = requestAnimationFrame(draw);
+  }
+  
+  draw();
+  
+  // Handle resizing
+  window.addEventListener('resize', () => {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+    pointer.x = targetPointer.x = width/2;
+    pointer.y = targetPointer.y = height/2;
+  });
+  
+  // Pause animation on hidden tabs
+  document.addEventListener('visibilitychange', () => {
+    if(document.hidden) cancelAnimationFrame(animationFrame);
+    else draw();
+  });
 })();
-
-
-
-
-
-
