@@ -13,34 +13,35 @@
   <meta name="theme-color" content="#0f0f0f">
 </head>
 <body>
-  <canvas id="siriWave"></canvas>
+  <!-- Siri-like background canvas -->
+  <canvas id="siriWave" aria-hidden="true"></canvas>
 
-  <div class="app">
+  <div class="app" role="application" aria-labelledby="appTitle">
     <!-- Sidebar / Favorites -->
-    <aside class="sidebar card glass">
+    <aside class="sidebar card glass" aria-label="Favorites sidebar">
       <div class="title">★ Favorites</div>
       <p class="muted" style="margin-top:12px">
         Your favorite shows will appear here. Click the heart on a result to save it.
       </p>
-      <ul id="favoritesList"></ul>
+      <ul id="favoritesList" aria-live="polite"></ul>
     </aside>
 
     <!-- Main Content -->
-    <main class="main">
-      <div class="card glass">
+    <main class="main" id="main" class="card" role="main">
+      <div class="card glass" id="appCard">
         <!-- Topbar -->
         <div class="topbar">
           <div style="display:flex;gap:12px;align-items:center">
-            <div class="logo">RE</div>
+            <div class="logo" aria-hidden="true">RE</div>
             <div>
-              <div style="font-weight:800;font-size:14px">Random Episode Finder</div>
+              <div id="appTitle" style="font-weight:800;font-size:14px">Random Episode Finder</div>
               <div class="hint" style="margin-top:2px;font-size:12px">Let Fate Decide What you Watch</div>
             </div>
           </div>
 
           <!-- favorites toggle + install button -->
           <div style="display:flex;gap:8px;align-items:center">
-            <button id="favToggle" class="btn btn-clear" title="Show / hide favorites" style="display:none;">
+            <button id="favToggle" class="btn btn-clear" title="Show / hide favorites" aria-pressed="false" style="display:none;">
               Favorites
             </button>
             <button id="installBtn" class="btn btn-surprise" style="display:none;">
@@ -51,44 +52,55 @@
 
         <h1>Random Episode Finder</h1>
 
+        <!-- Inline messages (errors / toasts) -->
+        <div id="message" role="status" aria-live="polite" class="message" hidden></div>
+
         <!-- Search -->
         <div class="search-row">
-          <input id="searchInput" class="input" placeholder="Search for a show (e.g. SpongeBob SquarePants)" />
-          <button id="searchBtn" class="btn btn-primary">Search</button>
+          <label for="searchInput" class="sr-only">Search for a show</label>
+          <input id="searchInput" class="input" placeholder="Search for a show (e.g. SpongeBob SquarePants)" aria-label="Search for a show" />
+          <button id="searchBtn" class="btn btn-primary" aria-label="Search">Search</button>
         </div>
 
         <!-- Season Range -->
         <div class="hint" style="text-align:center;margin-bottom:8px">Season Range</div>
-        <div class="controls">
+        <div class="controls" role="region" aria-label="Season selection">
           <div style="flex:1">
-            <label>From Season</label>
-            <select id="fromSeason" class="input"></select>
+            <label for="fromSeason">From Season</label>
+            <select id="fromSeason" class="input" aria-label="From season"></select>
           </div>
           <div style="flex:1">
-            <label>To Season</label>
-            <select id="toSeason" class="input"></select>
+            <label for="toSeason">To Season</label>
+            <select id="toSeason" class="input" aria-label="To season"></select>
           </div>
         </div>
 
         <!-- Actions -->
         <div style="display:flex;gap:12px;margin-top:12px;align-items:center;flex-wrap:wrap">
-          <button id="findBtn" class="btn btn-primary">Find Random Episode</button>
-          <button id="surpriseBtn" class="btn btn-surprise">✨ Surprise Me!</button>
-          <button id="clearBtn" class="btn btn-clear" title="Clear favorites">Clear Favorites</button>
+          <button id="findBtn" class="btn btn-primary" aria-label="Find random episode">Find Random Episode</button>
+          <button id="surpriseBtn" class="btn btn-surprise" aria-label="Surprise me">✨ Surprise Me!</button>
+          <button id="clearBtn" class="btn btn-clear" aria-label="Clear favorites">Clear Favorites</button>
+          <!-- spinner (hidden by default) -->
+          <div id="spinner" class="spinner" role="status" aria-hidden="true" hidden>
+            <svg viewBox="0 0 50 50" class="spinner-svg" aria-hidden="true">
+              <circle cx="25" cy="25" r="20" fill="none" stroke-width="4" />
+            </svg>
+            <span class="sr-only">Loading</span>
+          </div>
         </div>
 
         <!-- Results -->
-        <div id="resultArea" class="result hidden" style="margin-top:18px"></div>
+        <div id="resultArea" class="result hidden" style="margin-top:18px" aria-live="polite"></div>
       </div>
 
-      <div id="episodesList"></div>
+      <div id="episodesList" aria-label="Episode list" class="episodesList"></div>
     </main>
   </div>
 
   <!-- Script -->
   <script src="script.js"></script>
 
-  <!-- Service Worker Registration -->
+  <!-- Service Worker Registration (optional) -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
