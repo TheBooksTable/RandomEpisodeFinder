@@ -92,6 +92,16 @@ function populateSeasonSelectors(episodes){
   to.value = seasons[seasons.length-1];
 }
 
+// Remove all HTML comments (including edge cases) from str.
+function removeHtmlComments(str){
+  let prev;
+  do {
+    prev = str;
+    str = str.replace(/<!--|--!?>/g, "");
+  } while (str !== prev);
+  return str;
+}
+
 function filterEpisodesBySeasonRange(eps, fromS, toS){
   return eps.filter(e => e.season >= fromS && e.season <= toS);
 }
@@ -108,13 +118,13 @@ function renderResult(episode, show){
       <div class="muted">${escapeHtml(show.name)} — S${episode.season}E${episode.number}</div>
       <h2>${escapeHtml(episode.name)}</h2>
       <p class="muted">Aired: ${episode.airdate || 'Unknown'}</p>
-       <p>${episode.summary ? episode.summary.replace(/<[^>]+>/g,'') : 'No summary available.'}</p>
+       <p>${episode.summary ? removeHtmlComments(episode.summary.replace(/<[^>]+>/g,'')) : 'No summary available.'}</p>
       
       <button id="saveFav" class="btn btn-clear">♡ Save Show</button>
     </div>
     <div class="rating">${episode.rating?.average || ''}</div>
   `;
-  str.replace(/<!--|--!?>/g, "");  
+  // Removed: str.replace(/<!--|--!?>/g, "");  
   $('saveFav').addEventListener('click', () => {
     const favs = loadFavorites();
     if(!favs.find(f=>f.id===show.id)){
