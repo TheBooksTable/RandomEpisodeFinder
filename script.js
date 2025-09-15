@@ -108,12 +108,13 @@ function renderResult(episode, show){
       <div class="muted">${escapeHtml(show.name)} — S${episode.season}E${episode.number}</div>
       <h2>${escapeHtml(episode.name)}</h2>
       <p class="muted">Aired: ${episode.airdate || 'Unknown'}</p>
-      <p>${episode.summary ? episode.summary.replace(/<[^>]+>/g,'') ? str.replace(/<!--|--!?>/g, "");    : 'No summary available.'}</p>
+       <p>${episode.summary ? episode.summary.replace(/<[^>]+>/g,'') : 'No summary available.'}</p>
       
       <button id="saveFav" class="btn btn-clear">♡ Save Show</button>
     </div>
     <div class="rating">${episode.rating?.average || ''}</div>
   `;
+  str.replace(/<!--|--!?>/g, "");  
   $('saveFav').addEventListener('click', () => {
     const favs = loadFavorites();
     if(!favs.find(f=>f.id===show.id)){
