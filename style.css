@@ -150,7 +150,7 @@ h1 {
   /*box-shadow: 0 6px 18px rgba(106,89,255,0.18);*/
 }
 .btn-surprise {
-  box-shadow: 0 0 5px #FF9567;, 0 0 10px #FF9567;, 0 0 20px #FF9567;;
+  box-shadow: 0 0 5px #FF9567 0 0 10px #FF9567, 0 0 20px #FF9567;
   background: linear-gradient(135deg,#ff896d 0%, #ffcd4b 100%);
   color: #081122;
   /*box-shadow: 0 6px 18px rgba(255,153,102,0.12);*/
