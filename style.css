@@ -1,29 +1,35 @@
+/* ---------- base fixes ---------- */
 * { box-sizing: border-box; }
-html,body { 
-  hmargin: 0;
+
+/* ensure body is scrollable and full viewport; typo fixed */
+html, body {
+  margin: 0;
   padding: 0;
-  height: auto;       /* let body be as tall as content */
-  min-height: 100vh;  /* ensure at least viewport height */
-  background: #111; 
+  height: auto;       /* let body grow with content */
+  min-height: 100vh;  /* at least the viewport height */
+  background: #111;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* Siri canvas: fixed full-viewport and won't block pointer events or scrolling */
 #siriWave {
-  position: absolute; /* absolute instead of fixed */
+  position: fixed;        /* fixed ensures full viewport coverage even when page scrolls */
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   z-index: -1;
-  pointer-events: none;
+  pointer-events: none;   /* IMPORTANT: allows scrolling & clicks through the canvas */
 }
+
+/* keep the rest of your body styling (your original body block) */
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial;
   background: radial-gradient(1200px 600px at 10% 10%, rgba(110,85,255,0.07), transparent),
               linear-gradient(120deg, #0b0b0f 0%, #0f1216 100%);
   color: #eef2ff;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
   padding: 20px;
   display: flex;
@@ -243,6 +249,7 @@ h1 {
   to { transform: scale(1); opacity: 1; }
 }
 .card { animation: pop .12s ease both; }
+
 
 
 
