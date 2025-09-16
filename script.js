@@ -105,7 +105,14 @@ function populateSeasonSelectors(episodes){
 }
 
 function simpleSanitizeHtml(str){ const div=document.createElement('div'); div.innerHTML=str||''; return div.textContent||div.innerText||''; }
-function removeHtmlComments(str){ return (''+str).replace(/<!--[\s\S]*?-->/g,''); }
+function removeHtmlComments(str){ 
+  let prev, out = ''+str;
+  do {
+    prev = out;
+    out = out.replace(/<!--[\s\S]*?-->/g, '');
+  } while (out !== prev);
+  return out;
+}
 function filterEpisodesBySeasonRange(eps, fromS, toS){ return eps.filter(e=>e.season>=fromS && e.season<=toS); }
 function pickRandom(arr){ return arr&&arr.length?arr[Math.floor(Math.random()*arr.length)]:null; }
 
