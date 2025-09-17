@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+
+Disallow: /service-worker.js
+Disallow: /manifest.json
+Disallow: /icons/
+
+
+Sitemap: https://thebookstable.github.io/RandomEpisodeSelector/sitemap.xml
