@@ -1,7 +1,3 @@
-// ----------------------------
-// script.js fully rewritten
-// ----------------------------
-
 const $ = id => document.getElementById(id);
 let currentShow = null;
 let allEpisodes = [];
@@ -277,3 +273,4 @@ renderFavorites();
 
   window.addEventListener('resize',resizeCanvas,{passive:true});
 })();
+
