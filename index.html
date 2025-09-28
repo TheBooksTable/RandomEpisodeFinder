@@ -1,158 +1,76 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <script id="aclib" type="text/javascript" src="//acscdn.com/script/aclib.js"></script>
-  <script src="https://fpyf8.com/88/tag.min.js" data-zone="172170" async data-cfasync="false"></script>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name='admaven-placement' content=Bqja9qHrE>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Random Episode Finder</title>
-
-  <!-- Styles -->
-  <link rel="stylesheet" href="style.css">
-
-  <!-- PWA -->
-  <link rel="manifest" href="manifest.json">
-  <link rel="icon" type="image/png" href="icon.png">
-
-  <meta name="theme-color" content="#0f0f0f">
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3847726797017738"
-     crossorigin="anonymous"></script>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <canvas id="siriWave"></canvas>
+  <!-- SiriWave background -->
+  <div id="siriWave"></div>
 
   <div class="app">
-    <!-- Sidebar / Favorites -->
-    <aside class="sidebar card glass">
-      <div class="title">★ Favorites</div>
-      <p class="muted" style="margin-top:12px">
-        Your favorite shows will appear here. Click the heart on a result to save it.
-      </p>
-      <ul id="favoritesList"></ul>
+    <!-- Sidebar -->
+    <aside class="sidebar glass">
+      <div class="title">Favorites</div>
+      <select id="favSort" class="input">
+        <option value="recent">Sort by Recently Added</option>
+        <option value="alpha">Sort Alphabetically</option>
+      </select>
+      <button id="clearBtn" class="btn btn-clear">Clear All</button>
+      <div id="favoritesList"></div>
     </aside>
 
-    <!-- Main Content -->
+    <!-- Main -->
     <main class="main">
-      <div class="card glass">
-        <!-- Topbar -->
-        <div class="topbar">
-          <div style="display:flex;gap:12px;align-items:center">
-            <div class="logo">RE</div>
-            <div>
-              <div style="font-weight:800;font-size:14px">Random Episode Finder</div>
-              <div class="hint" style="margin-top:2px;font-size:12px">Let Fate Decide What you Watch</div>
-            </div>
-          </div>
-
-          <!-- favorites toggle + install button -->
-          <div style="display:flex;gap:8px;align-items:center">
-            <button id="favToggle" class="btn btn-clear" title="Show / hide favorites" style="display:none;">
-              Favorites
-            </button>
-            <button id="installBtn" class="btn btn-surprise" style="display:none;">
-              Install
-            </button>
-          </div>
-        </div>
-
-        <h1>Random Episode Finder</h1>
-
-        <!-- Search -->
+      <!-- Unified Topbar with Logo + Search -->
+      <div class="card glass search-card">
         <div class="search-row">
-          <input id="searchInput" class="input" placeholder="Search for a show (e.g. SpongeBob SquarePants)" aria-label="Search show" />
+          <div class="logo">RE</div>
+          <input id="searchInput" class="input" placeholder="Search for a show..." />
           <button id="searchBtn" class="btn btn-primary">Search</button>
+          <button id="surpriseBtn" class="btn btn-surprise">Surprise Me</button>
         </div>
-
-        <div id="inlineMessage" class="muted" style="margin-bottom:8px"></div>
-
-        <!-- Season Range -->
-        <div class="hint" style="text-align:center;margin-bottom:8px">Season Range</div>
         <div class="controls">
-          <div style="flex:1">
-            <label>From Season</label>
+          <div>
+            <label for="fromSeason">From Season</label>
             <select id="fromSeason" class="input"></select>
           </div>
-          <div style="flex:1">
-            <label>To Season</label>
+          <div>
+            <label for="toSeason">To Season</label>
             <select id="toSeason" class="input"></select>
           </div>
+          <button id="findBtn" class="btn btn-primary">Find Episode</button>
         </div>
-
-        <!-- Actions -->
-        <div style="display:flex;gap:12px;margin-top:12px;align-items:center;flex-wrap:wrap">
-          <button id="findBtn" class="btn btn-primary">Find Random Episode</button>
-          <button id="surpriseBtn" class="btn btn-surprise">✨ Surprise Me!</button>
-          <button id="clearBtn" class="btn btn-clear" title="Clear favorites">Clear Favorites</button>
-        </div>
-
-        <!-- Results -->
-        <div id="resultArea" class="result hidden" style="margin-top:18px"></div>
       </div>
 
-      <div id="episodesList"></div>
-      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3847726797017738"
-     crossorigin="anonymous"></script>
-<!-- Bloco -->
-<ins class="adsbygoogle"
-     style="display:block"
-     data-ad-client="ca-pub-3847726797017738"
-     data-ad-slot="2501165827"
-     data-ad-format="auto"
-     data-full-width-responsive="true"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
+      <!-- Result Area -->
+      <div id="resultArea" class="card glass" style="display:none;"></div>
+
+      <!-- Daily Pick -->
+      <div id="dailyPick" class="card glass hidden">
+        <h2>🎲 Episode of the Day</h2>
+        <div id="dailyContent"></div>
+      </div>
     </main>
   </div>
 
-  <!-- Script -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3847726797017738"
-     crossorigin="anonymous"></script>
+  <!-- SiriWave lib -->
+  <script src="https://unpkg.com/siriwave/dist/siriwave.umd.min.js"></script>
+
+  <!-- App logic -->
   <script src="script.js"></script>
 
-  <!-- Service Worker Registration -->
+  <!-- Register service worker -->
   <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js')
-          .then(reg => console.log('Service Worker registered', reg))
-          .catch(err => console.error('SW registration failed', err));
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("service-worker.js").catch(err => {
+        console.warn("SW registration failed", err);
       });
     }
   </script>
-  <script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js'></script>
-<script>
-  kofiWidgetOverlay.draw('thebookstable', {
-    'type': 'floating-chat',
-    'floating-chat.donateButton.text': 'Donate',
-    'floating-chat.donateButton.background-color': '#00b9fe',
-    'floating-chat.donateButton.text-color': '#fff'
-  });
-</script>
-  <script type="text/javascript">
-    aclib.runAutoTag({
-        zoneId: 'igffiuisim',
-    });
-</script>
-  </script>
-  <script type="text/javascript">
-    aclib.runAutoTag({
-        zoneId: '0lrrgahfg1',
-    });
-</script>
-
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
+  
