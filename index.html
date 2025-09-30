@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Random Episode Finder</title>
+  <title>Random Episode Finder - Discover Your Next TV Episode</title>
+  <meta name="description" content="Find random TV episodes from your favorite shows. Save episodes to watch later, get daily picks, and discover new shows.">
   <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="style.css" />
   <link rel="icon" type="image/png" href="icon.png">
@@ -15,17 +16,39 @@
   <div class="app">
     <!-- Sidebar -->
     <aside class="sidebar glass">
-      <div class="title">Favorites</div>
+      <div class="sidebar-header">
+        <div class="title">Favorites</div>
+        <button id="clearBtn" class="btn btn-clear">Clear All</button>
+      </div>
       <select id="favSort" class="input">
         <option value="recent">Sort by Recently Added</option>
         <option value="alpha">Sort Alphabetically</option>
+        <option value="custom">Custom Order (Drag & Drop)</option>
       </select>
-      <button id="clearBtn" class="btn btn-clear">Clear All</button>
-      <div id="favoritesList"></div>
+      <div id="favoritesList" class="favorites-container"></div>
     </aside>
 
     <!-- Main -->
     <main class="main">
+      <!-- Theme Toggles -->
+      <div class="theme-controls">
+        <div class="theme-toggle">
+          <span class="theme-label">🌙</span>
+          <label class="switch">
+            <input type="checkbox" id="themeToggle">
+            <span class="slider"></span>
+          </label>
+          <span class="theme-label">☀️</span>
+        </div>
+        <div class="theme-toggle">
+          <span class="theme-label">Show Theme</span>
+          <label class="switch">
+            <input type="checkbox" id="showThemeToggle">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
       <!-- Unified Topbar with Logo + Search -->
       <div class="card glass search-card">
         <div class="search-row">
@@ -48,7 +71,27 @@
       </div>
 
       <!-- Result Area -->
-      <div id="resultArea" class="card glass" style="display:none;"></div>
+      <div id="resultArea" class="card glass hidden">
+        <div class="result-content"></div>
+      </div>
+
+      <!-- Loading Skeleton -->
+      <div id="loadingSkeleton" class="card glass hidden">
+        <div class="skeleton">
+          <div class="skeleton-thumb"></div>
+          <div class="skeleton-content">
+            <div class="skeleton-line short"></div>
+            <div class="skeleton-line medium"></div>
+            <div class="skeleton-line long"></div>
+            <div class="skeleton-line"></div>
+            <div class="skeleton-buttons">
+              <div class="skeleton-button"></div>
+              <div class="skeleton-button"></div>
+              <div class="skeleton-button"></div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- Daily Pick -->
       <div id="dailyPick" class="card glass hidden">
@@ -56,6 +99,34 @@
         <div id="dailyContent"></div>
       </div>
     </main>
+  </div>
+
+  <!-- Shuffle Animation -->
+  <div id="shuffleAnimation" class="shuffle-container hidden">
+    <div class="shuffle-cards">
+      <div class="shuffle-card"></div>
+      <div class="shuffle-card"></div>
+      <div class="shuffle-card"></div>
+      <div class="shuffle-card"></div>
+      <div class="shuffle-card"></div>
+    </div>
+    <div class="shuffle-text">Shuffling Episodes...</div>
+  </div>
+
+  <!-- Custom Confirmation Modal -->
+  <div id="confirmationModal" class="modal hidden">
+    <div class="modal-content glass">
+      <div class="modal-header">
+        <h3>Confirm Clear All</h3>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to clear all favorites? This action cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button id="modalCancel" class="btn btn-clear">Cancel</button>
+        <button id="modalConfirm" class="btn btn-primary">Clear All</button>
+      </div>
+    </div>
   </div>
 
   <!-- SiriWave lib -->
@@ -73,16 +144,13 @@
     }
   </script>
   <script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js'></script>
-<script>
-  kofiWidgetOverlay.draw('thebookstable', {
-    'type': 'floating-chat',
-    'floating-chat.donateButton.text': 'Support me',
-    'floating-chat.donateButton.background-color': '#323842',
-    'floating-chat.donateButton.text-color': '#fff'
-  });
-</script>
+  <script>
+    kofiWidgetOverlay.draw('thebookstable', {
+      'type': 'floating-chat',
+      'floating-chat.donateButton.text': 'Support me',
+      'floating-chat.donateButton.background-color': '#323842',
+      'floating-chat.donateButton.text-color': '#fff'
+    });
+  </script>
 </body>
 </html>
-
-  
-

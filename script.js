@@ -2,6 +2,8 @@ const $ = id => document.getElementById(id);
 let currentShow = null;
 let allEpisodes = [];
 let openOnRender = null;
+let draggedItem = null;
+let draggedItemType = null; // 'show' or 'episode'
 
 const SURPRISE_LIST = [
    'Breaking Bad','The Office','Friends','SpongeBob SquarePants',
@@ -21,6 +23,201 @@ const SURPRISE_LIST = [
   'The Venture Bros.','Futurama','The Legend of Korra','Love, Death & Robots',
   'The Owl House','Castlevania','Animaniacs (2020)','Young Justice'
 ];
+
+const SHOW_THEMES = {
+  'The Simpsons': 'simpsons',
+  'Breaking Bad': 'breakingbad',
+  'Better Call Saul': 'breakingbad',
+  'Smiling Friends': 'smilingfriends',
+  'Rick and Morty': 'rickandmorty',
+  'Adventure Time': 'adventuretime',
+  'Adventure Time: Distant Lands': 'adventuretime',
+  'Gravity Falls': 'gravityfalls',
+  'Stranger Things': 'strangerthings',
+  'The Office': 'theoffice',
+  'SpongeBob SquarePants': 'spongebob',
+  'BoJack Horseman': 'bojack',
+  'Futurama': 'futurama',
+  'Avatar: The Last Airbender': 'avatar',
+  'The Legend of Korra': 'avatar',
+  'South Park': 'southpark',
+  'Over the Garden Wall': 'overthegardenwall',
+  'The Midnight Gospel': 'midnightgospel',
+  'Friends': 'friends',
+  'Black Mirror': 'blackmirror',
+  'Brooklyn Nine-Nine': 'brooklynninenine'
+};
+
+/* ----------------------------
+   Enhanced Notification System
+---------------------------- */
+function showNotification(message, type = "info", title = null, duration = 4000) {
+  // Remove any existing notifications
+  const existingNotifications = document.querySelectorAll('.notification');
+  existingNotifications.forEach(notification => {
+    notification.style.animation = 'slideOutRight 0.3s ease';
+    setTimeout(() => notification.remove(), 300);
+  });
+
+  // Create notification element
+  const notification = document.createElement('div');
+  notification.className = `notification ${type}`;
+  
+  const icons = {
+    success: '✅',
+    warning: '⚠️',
+    error: '❌',
+    info: '💡'
+  };
+  
+  const defaultTitles = {
+    success: 'Success',
+    warning: 'Warning',
+    error: 'Error',
+    info: 'Info'
+  };
+  
+  notification.innerHTML = `
+    <div class="notification-icon">${icons[type] || icons.info}</div>
+    <div class="notification-content">
+      <div class="notification-title">${title || defaultTitles[type]}</div>
+      <div class="notification-message">${message}</div>
+    </div>
+    <button class="notification-close">✕</button>
+  `;
+  
+  document.body.appendChild(notification);
+  
+  // Add close button functionality
+  notification.querySelector('.notification-close').addEventListener('click', () => {
+    notification.style.animation = 'slideOutRight 0.3s ease';
+    setTimeout(() => notification.remove(), 300);
+  });
+  
+  // Auto remove after duration
+  if (duration > 0) {
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.style.animation = 'slideOutRight 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+      }
+    }, duration);
+  }
+  
+  return notification;
+}
+
+/* ----------------------------
+   Custom Confirmation Modal
+---------------------------- */
+function showConfirmationModal(message, confirmText = "Confirm", cancelText = "Cancel") {
+  return new Promise((resolve) => {
+    const modal = $("confirmationModal");
+    const modalContent = modal.querySelector(".modal-content");
+    const messageElement = modal.querySelector(".modal-body p");
+    const confirmBtn = $("modalConfirm");
+    const cancelBtn = $("modalCancel");
+    
+    // Set modal content
+    messageElement.textContent = message;
+    confirmBtn.textContent = confirmText;
+    cancelBtn.textContent = cancelText;
+    
+    // Show modal
+    modal.classList.remove("hidden");
+    
+    // Remove any existing event listeners
+    const newConfirmBtn = confirmBtn.cloneNode(true);
+    const newCancelBtn = cancelBtn.cloneNode(true);
+    confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+    cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+    
+    // Add event listeners
+    newConfirmBtn.addEventListener("click", () => {
+      closeModal();
+      resolve(true);
+    });
+    
+    newCancelBtn.addEventListener("click", () => {
+      closeModal();
+      resolve(false);
+    });
+    
+    // Close on backdrop click
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) {
+        closeModal();
+        resolve(false);
+      }
+    });
+    
+    // Close on escape key
+    const handleEscape = (e) => {
+      if (e.key === "Escape") {
+        closeModal();
+        resolve(false);
+        document.removeEventListener("keydown", handleEscape);
+      }
+    };
+    document.addEventListener("keydown", handleEscape);
+    
+    function closeModal() {
+      modal.classList.add("closing");
+      setTimeout(() => {
+        modal.classList.add("hidden");
+        modal.classList.remove("closing");
+        document.removeEventListener("keydown", handleEscape);
+      }, 300);
+    }
+  });
+}
+
+/* ----------------------------
+   Theme Management
+---------------------------- */
+function initTheme() {
+  const savedTheme = localStorage.getItem('ref-theme') || 'dark';
+  const showThemeEnabled = localStorage.getItem('ref-show-theme') === 'true';
+  
+  $('themeToggle').checked = savedTheme === 'light';
+  $('showThemeToggle').checked = showThemeEnabled;
+  
+  setTheme(savedTheme);
+  updateShowTheme(currentShow, showThemeEnabled);
+}
+
+function setTheme(theme) {
+  document.body.setAttribute('data-theme', theme);
+  localStorage.setItem('ref-theme', theme);
+}
+
+function toggleTheme() {
+  const newTheme = $('themeToggle').checked ? 'light' : 'dark';
+  setTheme(newTheme);
+  updateShowTheme(currentShow, $('showThemeToggle').checked);
+}
+
+function toggleShowTheme() {
+  const enabled = $('showThemeToggle').checked;
+  localStorage.setItem('ref-show-theme', enabled);
+  updateShowTheme(currentShow, enabled);
+}
+
+function updateShowTheme(show, enabled) {
+  if (!enabled || !show) {
+    const currentTheme = $('themeToggle').checked ? 'light' : 'dark';
+    setTheme(currentTheme);
+    return;
+  }
+  
+  const themeName = SHOW_THEMES[show.name];
+  if (themeName) {
+    setTheme(themeName);
+  } else {
+    const currentTheme = $('themeToggle').checked ? 'light' : 'dark';
+    setTheme(currentTheme);
+  }
+}
 
 /* ----------------------------
    Favorites utils
@@ -44,12 +241,249 @@ function ensureFav(show) {
     fav = {
       id: show.id,
       name: show.name,
-      episodes: { watchlist: [], watched: [] }
+      episodes: { watchlist: [], watched: [] },
+      order: favs.length // Add order for drag & drop
     };
     favs.push(fav);
     saveFavorites(favs);
   }
   return fav;
+}
+
+/* ----------------------------
+   Drag & Drop Functionality
+---------------------------- */
+function initDragAndDrop() {
+  const container = $("favoritesList");
+  
+  // Drag start for shows
+  container.addEventListener("dragstart", (e) => {
+    if (e.target.classList.contains("drag-handle") || e.target.classList.contains("episode-drag-handle")) {
+      draggedItem = e.target.closest("details") || e.target.closest("li");
+      draggedItemType = e.target.closest("details") ? "show" : "episode";
+      
+      draggedItem.classList.add("dragging");
+      e.dataTransfer.effectAllowed = "move";
+      
+      // Set drag image to the element itself
+      setTimeout(() => {
+        draggedItem.style.opacity = "0.5";
+      }, 0);
+    }
+  });
+  
+  // Drag over for shows and episodes
+  container.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    
+    const afterElement = getDragAfterElement(container, e.clientY);
+    const draggable = document.querySelector(".dragging");
+    
+    if (draggable && afterElement && afterElement.element) {
+      if (draggable === afterElement.element) return;
+      
+      // Remove drag-over class from all elements
+      document.querySelectorAll(".drag-over").forEach(el => {
+        el.classList.remove("drag-over");
+      });
+      
+      // Add drag-over class to the element we're hovering over
+      afterElement.element.classList.add("drag-over");
+    }
+  });
+  
+  // Drop for shows and episodes
+  container.addEventListener("drop", (e) => {
+    e.preventDefault();
+    
+    if (!draggedItem) return;
+    
+    // Remove drag-over class from all elements
+    document.querySelectorAll(".drag-over").forEach(el => {
+      el.classList.remove("drag-over");
+    });
+    
+    const afterElement = getDragAfterElement(container, e.clientY);
+    const containerEl = afterElement ? afterElement.container : container;
+    
+    if (draggedItemType === "show") {
+      handleShowReorder(draggedItem, afterElement ? afterElement.element : null);
+    } else {
+      handleEpisodeReorder(draggedItem, afterElement ? afterElement.element : null);
+    }
+    
+    draggedItem.classList.remove("dragging");
+    draggedItem.style.opacity = "";
+    draggedItem = null;
+    draggedItemType = null;
+  });
+  
+  // Drag end cleanup
+  container.addEventListener("dragend", () => {
+    if (draggedItem) {
+      draggedItem.classList.remove("dragging");
+      draggedItem.style.opacity = "";
+      draggedItem = null;
+      draggedItemType = null;
+    }
+    
+    // Remove drag-over class from all elements
+    document.querySelectorAll(".drag-over").forEach(el => {
+      el.classList.remove("drag-over");
+    });
+  });
+  
+  // Touch events for mobile
+  initTouchDragAndDrop();
+}
+
+function getDragAfterElement(container, y) {
+  const draggableElements = [...container.querySelectorAll("details:not(.dragging), li:not(.dragging)")];
+  
+  return draggableElements.reduce((closest, child) => {
+    const box = child.getBoundingClientRect();
+    const offset = y - box.top - box.height / 2;
+    
+    if (offset < 0 && offset > closest.offset) {
+      return { offset: offset, element: child, container: child.parentNode };
+    } else {
+      return closest;
+    }
+  }, { offset: Number.NEGATIVE_INFINITY }).element ? 
+    { offset: Number.NEGATIVE_INFINITY, element: draggableElements[draggableElements.length - 1], container: container } : 
+    { offset: Number.NEGATIVE_INFINITY, element: null, container: container };
+}
+
+function handleShowReorder(draggedShow, afterElement) {
+  const favs = loadFavorites();
+  const draggedShowId = parseInt(draggedShow.querySelector(".showLink").dataset.name);
+  const draggedIndex = favs.findIndex(f => f.id === draggedShowId);
+  
+  if (draggedIndex === -1) return;
+  
+  const draggedFav = favs[draggedIndex];
+  favs.splice(draggedIndex, 1);
+  
+  let newIndex;
+  if (afterElement) {
+    const afterShowId = parseInt(afterElement.querySelector(".showLink").dataset.name);
+    newIndex = favs.findIndex(f => f.id === afterShowId);
+    if (newIndex !== -1) {
+      favs.splice(newIndex, 0, draggedFav);
+    } else {
+      favs.push(draggedFav);
+    }
+  } else {
+    favs.push(draggedFav);
+  }
+  
+  // Update order property for all shows
+  favs.forEach((fav, index) => {
+    fav.order = index;
+  });
+  
+  saveFavorites(favs);
+  renderFavorites();
+  showNotification("Favorites order has been updated", "success", "Order Updated");
+}
+
+function handleEpisodeReorder(draggedEpisode, afterElement) {
+  const favs = loadFavorites();
+  const showId = parseInt(draggedEpisode.querySelector(".epLink").dataset.show);
+  const epId = parseInt(draggedEpisode.querySelector(".epLink").dataset.ep);
+  const listType = draggedEpisode.closest("ul").previousElementSibling.classList.contains("badge-watchlist") ? "watchlist" : "watched";
+  
+  const showIndex = favs.findIndex(f => f.id === showId);
+  if (showIndex === -1) return;
+  
+  const episodeList = favs[showIndex].episodes[listType];
+  const draggedEpIndex = episodeList.findIndex(e => e.id === epId);
+  
+  if (draggedEpIndex === -1) return;
+  
+  const draggedEpisodeData = episodeList[draggedEpIndex];
+  episodeList.splice(draggedEpIndex, 1);
+  
+  let newIndex;
+  if (afterElement && afterElement.matches("li")) {
+    const afterEpId = parseInt(afterElement.querySelector(".epLink").dataset.ep);
+    newIndex = episodeList.findIndex(e => e.id === afterEpId);
+    if (newIndex !== -1) {
+      episodeList.splice(newIndex, 0, draggedEpisodeData);
+    } else {
+      episodeList.push(draggedEpisodeData);
+    }
+  } else {
+    episodeList.push(draggedEpisodeData);
+  }
+  
+  saveFavorites(favs);
+  renderFavorites();
+  showNotification("Episode order has been updated", "success", "Order Updated");
+}
+
+function initTouchDragAndDrop() {
+  let touchStartY = 0;
+  let touchCurrentY = 0;
+  let touchDraggedElement = null;
+  
+  document.addEventListener("touchstart", (e) => {
+    if (e.target.classList.contains("drag-handle") || e.target.classList.contains("episode-drag-handle")) {
+      touchDraggedElement = e.target.closest("details") || e.target.closest("li");
+      touchStartY = e.touches[0].clientY;
+      touchDraggedElement.classList.add("dragging");
+      e.preventDefault();
+    }
+  });
+  
+  document.addEventListener("touchmove", (e) => {
+    if (!touchDraggedElement) return;
+    
+    touchCurrentY = e.touches[0].clientY;
+    const deltaY = touchCurrentY - touchStartY;
+    
+    // Move the element visually
+    touchDraggedElement.style.transform = `translateY(${deltaY}px)`;
+    
+    // Find elements to reorder (simplified for touch)
+    const container = $("favoritesList");
+    const draggableElements = [...container.querySelectorAll("details:not(.dragging), li:not(.dragging)")];
+    
+    draggableElements.forEach(el => {
+      el.classList.remove("drag-over");
+    });
+    
+    const afterElement = getDragAfterElement(container, touchCurrentY);
+    if (afterElement && afterElement.element) {
+      afterElement.element.classList.add("drag-over");
+    }
+    
+    e.preventDefault();
+  });
+  
+  document.addEventListener("touchend", () => {
+    if (!touchDraggedElement) return;
+    
+    const container = $("favoritesList");
+    const afterElement = getDragAfterElement(container, touchCurrentY);
+    
+    if (touchDraggedElement.tagName === "DETAILS") {
+      handleShowReorder(touchDraggedElement, afterElement ? afterElement.element : null);
+    } else {
+      handleEpisodeReorder(touchDraggedElement, afterElement ? afterElement.element : null);
+    }
+    
+    touchDraggedElement.classList.remove("dragging");
+    touchDraggedElement.style.transform = "";
+    touchDraggedElement.style.opacity = "";
+    
+    // Remove drag-over class from all elements
+    document.querySelectorAll(".drag-over").forEach(el => {
+      el.classList.remove("drag-over");
+    });
+    
+    touchDraggedElement = null;
+  });
 }
 
 /* ----------------------------
@@ -61,8 +495,12 @@ function renderFavorites() {
 
   if (sortMode === "alpha") {
     favs.sort((a, b) => a.name.localeCompare(b.name));
-  } else {
+  } else if (sortMode === "recent") {
+    // Reverse to show most recent first (maintain existing behavior)
     favs = favs.reverse();
+  } else if (sortMode === "custom") {
+    // Use custom order from drag & drop
+    favs.sort((a, b) => (a.order || 0) - (b.order || 0));
   }
 
   const container = $("favoritesList");
@@ -75,9 +513,26 @@ function renderFavorites() {
 
   favs.forEach(fav => {
     const details = document.createElement("details");
+    details.draggable = true;
+    
     const summary = document.createElement("summary");
-    summary.innerHTML = `<span class="showLink" data-name="${fav.name}">${fav.name}</span>`;
+    summary.innerHTML = `
+      <span class="drag-handle" title="Drag to reorder">⋮⋮</span>
+      <span class="showLink" data-name="${fav.name}">${fav.name}</span>
+    `;
+    
+    // Add remove button for the entire show
+    const removeBtn = document.createElement("button");
+    removeBtn.className = "remove-show";
+    removeBtn.innerHTML = "✕";
+    removeBtn.title = "Remove show from favorites";
+    removeBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      removeShowFromFavorites(fav.id);
+    });
+    
     details.appendChild(summary);
+    details.appendChild(removeBtn);
 
     if (openOnRender === fav.id) details.open = true;
 
@@ -91,7 +546,9 @@ function renderFavorites() {
       const ul = document.createElement("ul");
       fav.episodes.watchlist.forEach(ep => {
         const li = document.createElement("li");
+        li.draggable = true;
         li.innerHTML = `
+          <span class="episode-drag-handle" title="Drag to reorder">⋮⋮</span>
           <span class="epLink" data-show="${fav.id}" data-ep="${ep.id}">
             S${ep.season}E${ep.number} — ${ep.name}
           </span>
@@ -113,7 +570,9 @@ function renderFavorites() {
       const ul = document.createElement("ul");
       fav.episodes.watched.forEach(ep => {
         const li = document.createElement("li");
+        li.draggable = true;
         li.innerHTML = `
+          <span class="episode-drag-handle" title="Drag to reorder">⋮⋮</span>
           <span class="epLink" data-show="${fav.id}" data-ep="${ep.id}">
             S${ep.season}E${ep.number} — ${ep.name}
           </span>
@@ -151,6 +610,28 @@ function renderFavorites() {
   openOnRender = null;
 }
 
+function removeShowFromFavorites(showId) {
+  const showName = loadFavorites().find(f => f.id === showId)?.name || "Show";
+  
+  showConfirmationModal(
+    `Remove "${showName}" and all its episodes from favorites?`,
+    "Remove Show",
+    "Keep Show"
+  ).then(confirmed => {
+    if (confirmed) {
+      let favs = loadFavorites();
+      favs = favs.filter(f => f.id !== showId);
+      saveFavorites(favs);
+      renderFavorites();
+      showNotification(
+        `"${showName}" has been removed from favorites`,
+        "success",
+        "Show Removed"
+      );
+    }
+  });
+}
+
 /* ----------------------------
    API
 ---------------------------- */
@@ -162,6 +643,26 @@ async function searchShow(query) {
 async function getEpisodesForShow(showId) {
   const res = await fetch(`https://api.tvmaze.com/shows/${showId}/episodes`);
   return res.json();
+}
+
+/* ----------------------------
+   Loading States
+---------------------------- */
+function showLoading() {
+  $("resultArea").classList.add("hidden");
+  $("loadingSkeleton").classList.remove("hidden");
+}
+
+function hideLoading() {
+  $("loadingSkeleton").classList.add("hidden");
+}
+
+function showShuffleAnimation() {
+  $("shuffleAnimation").classList.remove("hidden");
+}
+
+function hideShuffleAnimation() {
+  $("shuffleAnimation").classList.add("hidden");
 }
 
 /* ----------------------------
@@ -191,7 +692,13 @@ function pickRandom(arr) {
 
 function renderResult(ep, show) {
   const container = $("resultArea");
-  container.style.display = "block";
+  const content = container.querySelector(".result-content");
+  
+  hideLoading();
+  container.classList.remove("hidden");
+  
+  // Update theme if show theme is enabled
+  updateShowTheme(show, $('showThemeToggle').checked);
 
   const img =
     (ep?.image?.medium) ||
@@ -201,20 +708,23 @@ function renderResult(ep, show) {
   const summary = (ep?.summary || "No summary").replace(/<[^>]*>?/gm, "");
   const rating = ep?.rating?.average || show?.rating?.average || "N/A";
 
-  container.innerHTML = `
-    <div class="thumb"><img src="${img}" alt="thumb"/></div>
-    <div class="meta">
-      <div class="hint">
-        <span class="showLink" data-name="${show.name}">${show.name}</span>
-        — S${ep.season}E${ep.number}
-      </div>
-      <h2>${ep.name || "Untitled"} <span class="rating">⭐ ${rating}</span></h2>
-      <p class="hint">Aired: ${ep.airdate || "Unknown"}</p>
-      <p>${summary}</p>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
-        <button id="saveFav" class="btn btn-clear">♡ Add Show</button>
-        <button id="watchLater" class="btn btn-primary">📺 Watch Later</button>
-        <button id="markWatched" class="btn btn-surprise">✔ Watched</button>
+  content.innerHTML = `
+    <div class="result fade-in">
+      <div class="thumb"><img src="${img}" alt="thumb"/></div>
+      <div class="meta">
+        <div class="hint">
+          <span class="showLink" data-name="${show.name}">${show.name}</span>
+          — S${ep.season}E${ep.number}
+        </div>
+        <h2>${ep.name || "Untitled"} <span class="rating">⭐ ${rating}</span></h2>
+        <p class="hint">Aired: ${ep.airdate || "Unknown"}</p>
+        <p>${summary}</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+          <button id="saveFav" class="btn btn-clear">♡ Add Show</button>
+          <button id="watchLater" class="btn btn-primary">📺 Watch Later</button>
+          <button id="markWatched" class="btn btn-surprise">✔ Watched</button>
+          <button id="shareBtn" class="btn btn-clear">📤 Share</button>
+        </div>
       </div>
     </div>
   `;
@@ -222,6 +732,11 @@ function renderResult(ep, show) {
   $("saveFav")?.addEventListener("click", () => {
     ensureFav(show);
     renderFavorites();
+    showNotification(
+      `"${show.name}" added to favorites`,
+      "success",
+      "Show Saved"
+    );
   });
 
   $("watchLater")?.addEventListener("click", () => {
@@ -230,6 +745,16 @@ function renderResult(ep, show) {
 
   $("markWatched")?.addEventListener("click", () => {
     addEpisode(show, ep, "watched");
+  });
+
+  $("shareBtn")?.addEventListener("click", () => {
+    shareEpisode(show, ep);
+  });
+
+  // Make show link clickable
+  content.querySelector(".showLink")?.addEventListener("click", async () => {
+    $("searchInput").value = show.name;
+    await doSearch(show.name);
   });
 }
 
@@ -241,7 +766,8 @@ function addEpisode(show, ep, type) {
     fav = {
       id: show.id,
       name: show.name,
-      episodes: { watchlist: [], watched: [] }
+      episodes: { watchlist: [], watched: [] },
+      order: favs.length
     };
     favs.push(fav);
   }
@@ -256,9 +782,23 @@ function addEpisode(show, ep, type) {
     saveFavorites(favs);
     openOnRender = show.id;
     renderFavorites();
-    alert(`Saved ${ep.name} to ${type}`);
+    
+    const typeNames = {
+      watchlist: "Watch Later",
+      watched: "Watched"
+    };
+    
+    showNotification(
+      `"${ep.name}" saved to ${typeNames[type]}`,
+      "success",
+      "Episode Saved"
+    );
   } else {
-    alert("Episode already in list");
+    showNotification(
+      "This episode is already in your list",
+      "info",
+      "Already Saved"
+    );
   }
 }
 
@@ -267,10 +807,17 @@ function removeEpisode(showId, type, epId) {
   let fav = favs.find(f => f.id === showId);
   if (!fav) return;
 
+  const episode = fav.episodes[type].find(e => e.id === epId);
   fav.episodes[type] = fav.episodes[type].filter(e => e.id !== epId);
   saveFavorites(favs);
   openOnRender = showId;
   renderFavorites();
+  
+  showNotification(
+    `Episode removed from ${type}`,
+    "success",
+    "Episode Removed"
+  );
 }
 
 async function openEpisode(showId, epId) {
@@ -278,8 +825,12 @@ async function openEpisode(showId, epId) {
   const fav = favs.find(f => f.id === showId);
   if (!fav) return;
 
+  showLoading();
   const data = await searchShow(fav.name);
-  if (data.length === 0) return;
+  if (data.length === 0) {
+    hideLoading();
+    return;
+  }
 
   const show = data[0].show;
   const episodes = await getEpisodesForShow(show.id);
@@ -290,6 +841,39 @@ async function openEpisode(showId, epId) {
     allEpisodes = episodes;
     populateSeasonSelectors(episodes);
     renderResult(ep, show);
+  } else {
+    hideLoading();
+  }
+}
+
+/* ----------------------------
+   Share Functionality
+---------------------------- */
+function shareEpisode(show, episode) {
+  const shareText = `Check out "${episode.name}" (S${episode.season}E${episode.number}) from ${show.name} - found via Random Episode Finder!`;
+  const shareUrl = window.location.href.split('?')[0];
+  
+  if (navigator.share) {
+    navigator.share({
+      title: `${show.name} - ${episode.name}`,
+      text: shareText,
+      url: shareUrl
+    }).catch(() => fallbackShare(shareText, shareUrl));
+  } else {
+    fallbackShare(shareText, shareUrl);
+  }
+}
+
+function fallbackShare(text, url) {
+  const fullText = `${text} ${url}`;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(fullText).then(() => {
+      showNotification('Link copied to clipboard!', 'success', 'Share');
+    }).catch(() => {
+      prompt('Copy this link:', fullText);
+    });
+  } else {
+    prompt('Copy this link:', fullText);
   }
 }
 
@@ -297,38 +881,106 @@ async function openEpisode(showId, epId) {
    Search + controls
 ---------------------------- */
 async function doSearch(query) {
+  if (!query.trim()) {
+    showNotification(
+      "Please enter a TV show name to search",
+      "warning",
+      "Search Empty"
+    );
+    return;
+  }
+  
+  showLoading();
   const data = await searchShow(query);
-  if (data.length === 0) return;
+  if (data.length === 0) {
+    hideLoading();
+    showNotification(
+      "No TV shows found matching your search",
+      "warning",
+      "No Results Found"
+    );
+    return;
+  }
 
   currentShow = data[0].show;
   allEpisodes = await getEpisodesForShow(currentShow.id);
 
   populateSeasonSelectors(allEpisodes);
-  renderResult(pickRandom(allEpisodes), currentShow);
+  
+  // Show shuffle animation before revealing result
+  showShuffleAnimation();
+  setTimeout(() => {
+    hideShuffleAnimation();
+    renderResult(pickRandom(allEpisodes), currentShow);
+  }, 1500);
 }
 
 $("searchBtn").onclick = () => doSearch($("searchInput").value.trim());
 
 $("findBtn").onclick = () => {
-  if (!currentShow) return;
-  const fromS = +$("fromSeason").value;
-  const toS = +$("toSeason").value;
-  const eps = allEpisodes.filter(e => e.season >= fromS && e.season <= toS);
-  renderResult(pickRandom(eps), currentShow);
+  if (!currentShow) {
+    showNotification(
+      "Please search for a show first",
+      "warning",
+      "No Show Selected"
+    );
+    return;
+  }
+  
+  showShuffleAnimation();
+  setTimeout(() => {
+    const fromS = +$("fromSeason").value;
+    const toS = +$("toSeason").value;
+    const eps = allEpisodes.filter(e => e.season >= fromS && e.season <= toS);
+    
+    if (eps.length === 0) {
+      hideShuffleAnimation();
+      showNotification(
+        "No episodes found in the selected season range",
+        "warning",
+        "No Episodes Found"
+      );
+      return;
+    }
+    
+    hideShuffleAnimation();
+    renderResult(pickRandom(eps), currentShow);
+  }, 1500);
 };
 
 $("surpriseBtn").onclick = () => {
-  $("searchInput").value = pickRandom(SURPRISE_LIST);
-  $("searchBtn").click();
+  const randomShow = pickRandom(SURPRISE_LIST);
+  $("searchInput").value = randomShow;
+  doSearch(randomShow);
 };
 
-$("clearBtn").onclick = () => {
-  localStorage.removeItem("ref-favs");
-  renderFavorites();
+$("clearBtn").onclick = async () => {
+  const confirmed = await showConfirmationModal(
+    "Are you sure you want to clear all favorites? This action cannot be undone.",
+    "Clear All",
+    "Keep Favorites"
+  );
+  
+  if (confirmed) {
+    localStorage.removeItem("ref-favs");
+    renderFavorites();
+    showNotification(
+      "All favorites have been cleared successfully", 
+      "success", 
+      "Favorites Cleared"
+    );
+  }
 };
 
 $("favSort")?.addEventListener("change", renderFavorites);
 
+// Theme event listeners
+$("themeToggle")?.addEventListener("change", toggleTheme);
+$("showThemeToggle")?.addEventListener("change", toggleShowTheme);
+
+// Initialize drag & drop and theme
+initDragAndDrop();
+initTheme();
 renderFavorites();
 
 /* ----------------------------
@@ -374,20 +1026,25 @@ async function loadDailyPick() {
   const summary = (ep?.summary || "No summary").replace(/<[^>]*>?/gm, "");
 
   content.innerHTML = `
-    <div class="thumb"><img src="${img}" alt="thumb"/></div>
-    <div class="meta">
-      <div class="hint">
-        <span class="showLink" data-name="${show.name}">${show.name}</span>
-        — S${ep.season}E${ep.number}
+    <div class="result fade-in">
+      <div class="thumb"><img src="${img}" alt="thumb"/></div>
+      <div class="meta">
+        <div class="hint">
+          <span class="showLink" data-name="${show.name}">${show.name}</span>
+          — S${ep.season}E${ep.number}
+        </div>
+        <h3 class="epLink" data-show="${show.id}" data-ep="${ep.id}">
+          ${ep.name || "Untitled"} <span class="rating">⭐ ${rating}</span>
+        </h3>
+        <p class="hint">Aired: ${ep.airdate || "Unknown"}</p>
+        <p>${summary}</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+          <button id="dailyFav" class="btn btn-clear">♡ Save Show</button>
+          <button id="dailyLater" class="btn btn-primary">📺 Watch Later</button>
+          <button id="dailyWatched" class="btn btn-surprise">✔ Watched</button>
+          <button id="dailyShare" class="btn btn-clear">📤 Share</button>
+        </div>
       </div>
-      <h3 class="epLink" data-show="${show.id}" data-ep="${ep.id}">
-        ${ep.name || "Untitled"} <span class="rating">⭐ ${rating}</span>
-      </h3>
-      <p class="hint">Aired: ${ep.airdate || "Unknown"}</p>
-      <p>${summary}</p>
-      <button id="dailyFav" class="btn btn-clear">♡ Save Show</button>
-      <button id="dailyLater" class="btn btn-primary">📺 Watch Later</button>
-      <button id="dailyWatched" class="btn btn-surprise">✔ Watched</button>
     </div>
   `;
 
@@ -395,6 +1052,11 @@ async function loadDailyPick() {
   $("dailyFav")?.addEventListener("click", () => {
     ensureFav(show);
     renderFavorites();
+    showNotification(
+      `"${show.name}" added to favorites`,
+      "success",
+      "Show Saved"
+    );
   });
 
   $("dailyLater")?.addEventListener("click", () => {
@@ -403,6 +1065,10 @@ async function loadDailyPick() {
 
   $("dailyWatched")?.addEventListener("click", () => {
     addEpisode(show, ep, "watched");
+  });
+
+  $("dailyShare")?.addEventListener("click", () => {
+    shareEpisode(show, ep);
   });
 
   // Make links clickable
@@ -443,4 +1109,3 @@ window.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
-
