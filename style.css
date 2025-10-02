@@ -719,6 +719,14 @@ input:checked + .slider:before {
   transition: color 0.3s ease;
   flex: 1;
 }
+.showLink:hover {
+  color: #486adb;
+  text-shadow: 0 0 4px rgba(0,0,0,0.4);
+  cursor: pointer;
+  transition: color 0.3s ease, transform 0.2s cubic-bezier(0.4, 0.2, 0.2, 1);
+  flex: 1;
+  transform: scale(1.07);
+}
 
 [data-theme="light"] .showLink {
   color: #4299e1;
@@ -1570,3 +1578,4 @@ input:checked + .slider:before {
   }
 
 }
+
