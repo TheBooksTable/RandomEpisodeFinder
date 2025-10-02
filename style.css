@@ -713,7 +713,7 @@ input:checked + .slider:before {
 }
 
 .showLink {
-  color: #7b9dff;
+  color: #eef2ff;
   text-shadow: 0 0 4px rgba(0,0,0,0.4);
   cursor: pointer;
   transition: color 0.3s ease;
@@ -1568,4 +1568,5 @@ input:checked + .slider:before {
     left: 10px;
     max-width: none;
   }
+
 }
