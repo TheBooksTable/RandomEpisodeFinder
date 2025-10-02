@@ -53,7 +53,10 @@
       <div class="card glass search-card">
         <div class="search-row">
           <div class="logo">RE</div>
-          <input id="searchInput" class="input" placeholder="Search for a show..." />
+          <div class="search-container">
+            <input id="searchInput" class="input" placeholder="Search for a show..." autocomplete="off" />
+            <div id="searchSuggestions" class="search-suggestions hidden"></div>
+          </div>
           <button id="searchBtn" class="btn btn-primary">Search</button>
           <button id="surpriseBtn" class="btn btn-surprise">Surprise Me</button>
         </div>

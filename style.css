@@ -1184,7 +1184,282 @@ input:checked + .slider:before {
     opacity: 1;
   }
 }
+/* Search Autocomplete Styles */
+.search-container {
+  position: relative;
+  flex: 1;
+}
 
+.search-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: rgba(20, 20, 30, 0.95); /* More opaque base */
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  backdrop-filter: blur(25px) saturate(200%); /* Stronger blur and saturation */
+  -webkit-backdrop-filter: blur(25px) saturate(200%); /* Safari support */
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2); /* Enhanced shadows */
+  z-index: 1000;
+  margin-top: 4px;
+  max-height: 300px;
+  overflow-y: auto;
+  animation: slideDown 0.2s ease;
+}
+
+/* Enhanced glass effect for dark theme */
+[data-theme="dark"] .search-suggestions,
+[data-theme="breakingbad"] .search-suggestions,
+[data-theme="rickandmorty"] .search-suggestions,
+[data-theme="strangerthings"] .search-suggestions,
+[data-theme="blackmirror"] .search-suggestions {
+  background: rgba(15, 15, 25, 0.98);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+}
+
+/* Enhanced glass effect for light theme */
+[data-theme="light"] .search-suggestions {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(25px) saturate(200%);
+  -webkit-backdrop-filter: blur(25px) saturate(200%);
+}
+
+/* Enhanced glass effect for colorful themes */
+[data-theme="simpsons"] .search-suggestions {
+  background: rgba(255, 240, 180, 0.95);
+  backdrop-filter: blur(25px) saturate(180%);
+  -webkit-backdrop-filter: blur(25px) saturate(180%);
+}
+
+[data-theme="smilingfriends"] .search-suggestions {
+  background: rgba(30, 25, 45, 0.95);
+  backdrop-filter: blur(25px) saturate(180%);
+  -webkit-backdrop-filter: blur(25px) saturate(180%);
+}
+
+[data-theme="adventuretime"] .search-suggestions {
+  background: rgba(255, 180, 220, 0.95);
+  backdrop-filter: blur(25px) saturate(180%);
+  -webkit-backdrop-filter: blur(25px) saturate(180%);
+}
+
+.search-suggestion {
+  padding: 12px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.search-suggestion:last-child {
+  border-bottom: none;
+}
+
+.search-suggestion:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.search-suggestion.active {
+  background: var(--primary-color);
+}
+
+/* Add a subtle gradient overlay for extra depth */
+.search-suggestions::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  border-radius: 12px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.suggestion-image {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  z-index: 1;
+}
+
+.suggestion-info {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.suggestion-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); /* Text shadow for better readability */
+}
+
+.suggestion-details {
+  font-size: 12px;
+  color: var(--text-secondary);
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.suggestion-year {
+  color: var(--accent-color);
+  font-weight: 500;
+}
+
+.suggestion-type {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+}
+
+.suggestion-no-results {
+  padding: 16px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 14px;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.suggestion-loading {
+  padding: 16px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 14px;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+/* Scrollbar styling to match the glass theme */
+.search-suggestions::-webkit-scrollbar {
+  width: 6px;
+}
+
+.search-suggestions::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 0 12px 12px 0;
+}
+
+.search-suggestions::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.search-suggestions::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Ensure all cards have lower z-index */
+.card {
+  position: relative;
+  z-index: 1;
+}
+
+/* Specific fix for search card to ensure suggestions work properly */
+.search-card {
+  position: relative;
+  z-index: 10;
+}
+
+/* Daily pick and other content cards should be lower */
+#dailyPick,
+#resultArea,
+#loadingSkeleton {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile responsive for search suggestions */
+@media (max-width: 900px) {
+  .search-suggestions {
+    max-height: 250px;
+    backdrop-filter: blur(30px) saturate(200%); /* Even stronger blur on mobile */
+    -webkit-backdrop-filter: blur(30px) saturate(200%);
+  }
+  
+  .search-suggestion {
+    padding: 10px 12px;
+  }
+  
+  .suggestion-image {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .suggestion-name {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .search-suggestions {
+    position: fixed;
+    top: auto;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    max-height: 50vh;
+    z-index: 1001;
+    backdrop-filter: blur(35px) saturate(200%); /* Maximum blur on mobile */
+    -webkit-backdrop-filter: blur(35px) saturate(200%);
+  }
+  
+  /* Add an overlay behind the suggestions on mobile */
+  .search-suggestions::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: -1;
+    border-radius: 12px;
+  }
+}
 /* Mobile Responsive */
 @media (max-width: 900px) {
   body {

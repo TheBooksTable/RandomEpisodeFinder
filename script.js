@@ -4,6 +4,9 @@ let allEpisodes = [];
 let openOnRender = null;
 let draggedItem = null;
 let draggedItemType = null; // 'show' or 'episode'
+let searchTimeout = null;
+let currentSuggestions = [];
+let selectedSuggestionIndex = -1;
 
 const SURPRISE_LIST = [
    'Breaking Bad','The Office','Friends','SpongeBob SquarePants',
@@ -47,6 +50,199 @@ const SHOW_THEMES = {
   'Black Mirror': 'blackmirror',
   'Brooklyn Nine-Nine': 'brooklynninenine'
 };
+
+/* ----------------------------
+   Search Autocomplete
+---------------------------- */
+function initSearchAutocomplete() {
+  const searchInput = $("searchInput");
+  const suggestionsContainer = $("searchSuggestions");
+
+  // Input event with debouncing
+  searchInput.addEventListener("input", (e) => {
+    const query = e.target.value.trim();
+    
+    // Clear previous timeout
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+    
+    // Hide suggestions if query is too short
+    if (query.length < 2) {
+      hideSuggestions();
+      return;
+    }
+    
+    // Show loading state
+    showLoadingSuggestions();
+    
+    // Debounce API calls
+    searchTimeout = setTimeout(() => {
+      fetchSearchSuggestions(query);
+    }, 300);
+  });
+
+  // Keyboard navigation
+  searchInput.addEventListener("keydown", (e) => {
+    if (!suggestionsContainer.classList.contains("hidden")) {
+      switch (e.key) {
+        case 'ArrowDown':
+          e.preventDefault();
+          navigateSuggestions(1);
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          navigateSuggestions(-1);
+          break;
+        case 'Enter':
+          e.preventDefault();
+          selectCurrentSuggestion();
+          break;
+        case 'Escape':
+          hideSuggestions();
+          break;
+      }
+    }
+  });
+
+  // Hide suggestions when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!searchInput.contains(e.target) && !suggestionsContainer.contains(e.target)) {
+      hideSuggestions();
+    }
+  });
+
+  // Prevent hiding when clicking inside suggestions
+  suggestionsContainer.addEventListener('click', (e) => {
+    e.stopPropagation();
+  });
+}
+
+async function fetchSearchSuggestions(query) {
+  try {
+    const response = await fetch(`https://api.tvmaze.com/search/shows?q=${encodeURIComponent(query)}`);
+    const data = await response.json();
+    
+    currentSuggestions = data.slice(0, 8); // Limit to 8 suggestions
+    displaySuggestions(currentSuggestions);
+  } catch (error) {
+    console.error('Error fetching suggestions:', error);
+    showErrorSuggestions();
+  }
+}
+
+function displaySuggestions(suggestions) {
+  const container = $("searchSuggestions");
+  
+  if (suggestions.length === 0) {
+    container.innerHTML = '<div class="suggestion-no-results">No shows found</div>';
+    container.classList.remove("hidden");
+    return;
+  }
+  
+  const suggestionsHTML = suggestions.map((result, index) => {
+    const show = result.show;
+    const image = show.image?.medium || 'https://via.placeholder.com/40x40/333/fff?text=TV';
+    const year = show.premiered ? new Date(show.premiered).getFullYear() : 'N/A';
+    const type = show.type || 'Show';
+    
+    return `
+      <div class="search-suggestion ${index === selectedSuggestionIndex ? 'active' : ''}" 
+           data-index="${index}" 
+           data-show-name="${show.name}">
+        <img src="${image}" alt="${show.name}" class="suggestion-image" onerror="this.src='https://via.placeholder.com/40x40/333/fff?text=TV'">
+        <div class="suggestion-info">
+          <div class="suggestion-name">${show.name}</div>
+          <div class="suggestion-details">
+            <span class="suggestion-year">${year}</span>
+            <span class="suggestion-type">${type}</span>
+            ${show.genres?.slice(0, 2).map(genre => `<span>${genre}</span>`).join('') || ''}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+  
+  container.innerHTML = suggestionsHTML;
+  container.classList.remove("hidden");
+  
+  // Add click event listeners to suggestions
+  container.querySelectorAll('.search-suggestion').forEach(suggestion => {
+    suggestion.addEventListener('click', () => {
+      const index = parseInt(suggestion.dataset.index);
+      selectSuggestion(index);
+    });
+  });
+}
+
+function showLoadingSuggestions() {
+  const container = $("searchSuggestions");
+  container.innerHTML = '<div class="suggestion-loading">Searching...</div>';
+  container.classList.remove("hidden");
+  selectedSuggestionIndex = -1;
+}
+
+function showErrorSuggestions() {
+  const container = $("searchSuggestions");
+  container.innerHTML = '<div class="suggestion-no-results">Error loading suggestions</div>';
+  container.classList.remove("hidden");
+}
+
+function hideSuggestions() {
+  const container = $("searchSuggestions");
+  container.classList.add("hidden");
+  selectedSuggestionIndex = -1;
+}
+
+function navigateSuggestions(direction) {
+  if (currentSuggestions.length === 0) return;
+  
+  selectedSuggestionIndex += direction;
+  
+  // Cycle through suggestions
+  if (selectedSuggestionIndex < 0) {
+    selectedSuggestionIndex = currentSuggestions.length - 1;
+  } else if (selectedSuggestionIndex >= currentSuggestions.length) {
+    selectedSuggestionIndex = 0;
+  }
+  
+  // Update active class
+  const suggestions = $("searchSuggestions").querySelectorAll('.search-suggestion');
+  suggestions.forEach((suggestion, index) => {
+    suggestion.classList.toggle('active', index === selectedSuggestionIndex);
+  });
+  
+  // Scroll into view if needed
+  if (suggestions[selectedSuggestionIndex]) {
+    suggestions[selectedSuggestionIndex].scrollIntoView({
+      block: 'nearest',
+      behavior: 'smooth'
+    });
+  }
+}
+
+function selectCurrentSuggestion() {
+  if (selectedSuggestionIndex >= 0 && selectedSuggestionIndex < currentSuggestions.length) {
+    selectSuggestion(selectedSuggestionIndex);
+  } else {
+    // If no suggestion selected, perform regular search
+    $("searchBtn").click();
+    hideSuggestions();
+  }
+}
+
+function selectSuggestion(index) {
+  const selectedShow = currentSuggestions[index].show;
+  
+  // Fill search input with selected show name
+  $("searchInput").value = selectedShow.name;
+  
+  // Perform search
+  doSearch(selectedShow.name);
+  
+  // Hide suggestions
+  hideSuggestions();
+}
 
 /* ----------------------------
    Enhanced Notification System
@@ -978,7 +1174,8 @@ $("favSort")?.addEventListener("change", renderFavorites);
 $("themeToggle")?.addEventListener("change", toggleTheme);
 $("showThemeToggle")?.addEventListener("change", toggleShowTheme);
 
-// Initialize drag & drop and theme
+// Initialize all functionality
+initSearchAutocomplete();
 initDragAndDrop();
 initTheme();
 renderFavorites();
