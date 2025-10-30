@@ -1243,7 +1243,8 @@ select:focus {
 /* Search Autocomplete Styles */
 .search-container {
   position: relative;
-  flex: 1;
+  min-width: 300px;
+  flex: 2;
 }
 
 .search-suggestions {
@@ -1551,6 +1552,10 @@ select:focus {
   }
   .search-row {
     flex-wrap: wrap;
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+    align-items: center;
   }
   .search-row .input {
     min-width: 200px;
@@ -1626,6 +1631,7 @@ select:focus {
   }
 
 }
+
 
 
 
