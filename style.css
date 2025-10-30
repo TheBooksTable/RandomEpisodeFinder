@@ -479,6 +479,9 @@ select {
   cursor: pointer;
   min-width: 120px;
 }
+select.form-control {
+  color: black;
+}
 
 select option {
   background: var(--bg-secondary);
@@ -1623,5 +1626,6 @@ select:focus {
   }
 
 }
+
 
 
